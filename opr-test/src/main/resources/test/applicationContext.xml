@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+                    http://www.springframework.org/schema/context
+                    http://www.springframework.org/schema/context/spring-context.xsd
+                    http://www.springframework.org/schema/beans
+                    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+    <!-- 自动扫描web包 ,将带有注解的类纳入spring容器管理 -->
+    <!--Spring 容器初始化的时候，会扫描 com.web 下标有
+        (@Component,@Service,@Controller,@Repository) 注解的类,纳入spring容器管理-->
+    <context:component-scan base-package="com.fs"></context:component-scan>
+    
+    <context:property-placeholder location="classpath*:applicationContext.properties"/>
+
+	<bean id="user" class="com.fs.controller.UserController"></bean>
+
+
+
+
+
+
+
+
+</beans>

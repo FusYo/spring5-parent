@@ -1,0 +1,103 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.fs</groupId>
+    <artifactId>spring5-maven</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <artifactId>spring-webmvc</artifactId>
+  
+  <dependencies>
+  	<dependency>
+  		<groupId>com.fs</groupId>
+  		<artifactId>spring-web</artifactId>
+  		<version>0.0.1-SNAPSHOT</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>com.fs</groupId>
+  		<artifactId>spring-context-support</artifactId>
+  		<version>0.0.1-SNAPSHOT</version>
+  	</dependency>
+  	
+  	<dependency>
+    <groupId>javax.servlet</groupId>
+    <artifactId>javax.servlet-api</artifactId>
+    <version>4.0.0</version>
+    <scope>provided</scope>
+</dependency>
+  	<!-- https://mvnrepository.com/artifact/javax.servlet.jsp/jsp-api -->
+<dependency>
+    <groupId>javax.servlet.jsp</groupId>
+    <artifactId>jsp-api</artifactId>
+    <version>2.2</version>
+    <scope>provided</scope>
+</dependency>
+  	<!-- https://mvnrepository.com/artifact/com.lowagie.text/com.springsource.com.lowagie.text -->
+<dependency>
+    <groupId>com.lowagie.text</groupId>
+    <artifactId>com.springsource.com.lowagie.text</artifactId>
+    <version>2.0.8</version>
+</dependency>
+  	<!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
+<dependency>
+    <groupId>org.apache.poi</groupId>
+    <artifactId>poi</artifactId>
+    <version>4.1.0</version>
+</dependency>
+  <!-- https://mvnrepository.com/artifact/org.webjars/webjars-locator-core -->
+<dependency>
+    <groupId>org.webjars</groupId>
+    <artifactId>webjars-locator-core</artifactId>
+    <version>0.37</version>
+</dependency>
+  <!-- https://mvnrepository.com/artifact/javax.servlet.jsp.jstl/javax.servlet.jsp.jstl-api -->
+<dependency>
+    <groupId>javax.servlet.jsp.jstl</groupId>
+    <artifactId>javax.servlet.jsp.jstl-api</artifactId>
+    <version>1.2.1</version>
+</dependency>
+  	<dependency>
+    <groupId>org.apache.poi</groupId>
+    <artifactId>poi-ooxml</artifactId>
+    <version>4.1.0</version>
+</dependency>
+  	
+  	<!-- https://mvnrepository.com/artifact/org.freemarker/freemarker -->
+<dependency>
+    <groupId>org.freemarker</groupId>
+    <artifactId>freemarker</artifactId>
+    <version>2.3.28</version>
+</dependency>
+  	<!-- https://mvnrepository.com/artifact/org.apache.tiles/tiles-api -->
+<dependency>
+    <groupId>org.apache.tiles</groupId>
+    <artifactId>tiles-api</artifactId>
+    <version>3.0.5</version>
+</dependency>
+  	<!-- https://mvnrepository.com/artifact/org.apache.tiles/tiles-core -->
+<dependency>
+    <groupId>org.apache.tiles</groupId>
+    <artifactId>tiles-core</artifactId>
+    <version>3.0.5</version>
+</dependency>
+  	<!-- https://mvnrepository.com/artifact/org.apache.tiles/tiles-servlet -->
+<dependency>
+    <groupId>org.apache.tiles</groupId>
+    <artifactId>tiles-servlet</artifactId>
+    <version>3.0.5</version>
+</dependency>
+  	<!-- https://mvnrepository.com/artifact/org.apache.tiles/tiles-el -->
+<dependency>
+    <groupId>org.apache.tiles</groupId>
+    <artifactId>tiles-el</artifactId>
+    <version>3.0.5</version>
+</dependency>
+  	<!-- https://mvnrepository.com/artifact/org.apache.tiles/tiles-extras -->
+<dependency>
+    <groupId>org.apache.tiles</groupId>
+    <artifactId>tiles-extras</artifactId>
+    <version>3.0.5</version>
+</dependency>
+  	
+  </dependencies>
+</project>

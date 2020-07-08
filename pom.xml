@@ -1,0 +1,31 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.fs</groupId>
+  <artifactId>spring5-maven</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <modules>
+  	<module>spring-core</module>
+  	<module>spring-beans</module>
+  	<module>spring-aop</module>
+  	<module>spring-context</module>
+  	<module>spring-instrument</module>
+  	<module>spring-expression</module>
+  	<module>spring-tx</module>
+  	<module>spring-jdbc</module>
+  	<module>spring-jms</module>
+  	<module>spring-context-support</module>
+  	<module>spring-orm</module>
+  	<module>spring-web</module>
+  	<module>spring-oxm</module>
+  	<module>spring-messaging</module>
+  	<module>spring-aspects</module>
+  	<module>spring-webmvc</module>
+  	<module>spring-websocket</module>
+  	<module>spring-webflux</module>
+  	<module>spring-test</module>
+  	<module>spring-context-indexer</module>
+  	<module>test</module>
+  	<module>opr-test</module>
+  </modules>
+</project>
