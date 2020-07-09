@@ -254,7 +254,7 @@ public class LocalSessionFactoryBuilder extends Configuration {
 	 * @see AvailableSettings#BEAN_CONTAINER
 	 */
 	public LocalSessionFactoryBuilder setBeanContainer(ConfigurableListableBeanFactory beanFactory) {
-		getProperties().put(AvailableSettings.BEAN_CONTAINER, new SpringBeanContainer(beanFactory));
+//		-getProperties().put(AvailableSettings.BEAN_CONTAINER, new SpringBeanContainer(beanFactory));
 		return this;
 	}
 

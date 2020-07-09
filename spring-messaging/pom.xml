@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.fs</groupId>
-    <artifactId>spring5-maven</artifactId>
+    <artifactId>spring5-parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>spring-messaging</artifactId>
@@ -17,10 +17,12 @@
   		<artifactId>spring-oxm</artifactId>
   		<version>0.0.1-SNAPSHOT</version>
   	</dependency>
-  	<dependency>
-    <groupId>io.projectreactor.ipc</groupId>
+
+<!-- https://mvnrepository.com/artifact/io.projectreactor.netty/reactor-netty -->
+<dependency>
+    <groupId>io.projectreactor.netty</groupId>
     <artifactId>reactor-netty</artifactId>
-    <version>0.7.0.RELEASE</version>
+    <version>0.9.9.RELEASE</version>
 </dependency>
 
   </dependencies>
