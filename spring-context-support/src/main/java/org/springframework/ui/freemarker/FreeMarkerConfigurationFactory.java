@@ -324,7 +324,8 @@ public class FreeMarkerConfigurationFactory {
 	 * @see #createConfiguration()
 	 */
 	protected Configuration newConfiguration() throws IOException, TemplateException {
-		return new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
+		//-return new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
+		return null;
 	}
 
 	/**
