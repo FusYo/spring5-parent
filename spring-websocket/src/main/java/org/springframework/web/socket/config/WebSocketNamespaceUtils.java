@@ -180,9 +180,10 @@ abstract class WebSocketNamespaceUtils {
 		ManagedList<Object> beans = new ManagedList<>();
 		if (parentElement != null) {
 			beans.setSource(context.extractSource(parentElement));
-			for (Element beanElement : DomUtils.getChildElementsByTagName(parentElement, "bean", "ref")) {
-				beans.add(context.getDelegate().parsePropertySubElement(beanElement, null));
-			}
+			//-
+//			for (Element beanElement : DomUtils.getChildElementsByTagName(parentElement, "bean", "ref")) {
+//				beans.add(context.getDelegate().parsePropertySubElement(beanElement, null));
+//			}
 		}
 		return beans;
 	}

@@ -110,7 +110,8 @@ public abstract class WebSocketMessageBrokerConfigurationSupport extends Abstrac
 	@Bean
 	public static CustomScopeConfigurer webSocketScopeConfigurer() {
 		CustomScopeConfigurer configurer = new CustomScopeConfigurer();
-		configurer.addScope("websocket", new SimpSessionScope());
+		//-
+		//configurer.addScope("websocket", new SimpSessionScope());
 		return configurer;
 	}
 

@@ -155,7 +155,9 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler, Life
 
 		try {
 			Class<?> clazz = ClassUtils.forName(className, AbstractHandshakeHandler.class.getClassLoader());
-			return (RequestUpgradeStrategy) ReflectionUtils.accessibleConstructor(clazz).newInstance();
+			//-
+//			return (RequestUpgradeStrategy) ReflectionUtils.accessibleConstructor(clazz).newInstance();
+			return null;
 		}
 		catch (Throwable ex) {
 			throw new IllegalStateException(

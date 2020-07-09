@@ -55,7 +55,8 @@ public class BeanCreatingHandlerProvider<T> implements BeanFactoryAware {
 
 	public void destroy(T handler) {
 		if (this.beanFactory != null) {
-			this.beanFactory.destroyBean(handler);
+			//-
+//			this.beanFactory.destroyBean(handler);
 		}
 	}
 

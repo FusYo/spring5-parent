@@ -157,7 +157,8 @@ class MessageBrokerBeanDefinitionParser implements BeanDefinitionParser {
 			Assert.hasText(pathAttribute, "Invalid <stomp-endpoint> (no path mapping)");
 			for (String path : StringUtils.tokenizeToStringArray(pathAttribute, ",")) {
 				path = path.trim();
-				Assert.hasText(path, () -> "Invalid <stomp-endpoint> path attribute: " + pathAttribute);
+				//-
+				//Assert.hasText(path, () -> "Invalid <stomp-endpoint> path attribute: " + pathAttribute);
 				if (DomUtils.getChildElementByTagName(endpointElem, "sockjs") != null) {
 					path = (path.endsWith("/") ? path + "**" : path + "/**");
 				}
@@ -480,10 +481,11 @@ class MessageBrokerBeanDefinitionParser implements BeanDefinitionParser {
 		ManagedList<Object> converters = new ManagedList<>();
 		if (convertersElement != null) {
 			converters.setSource(source);
-			for (Element beanElement : DomUtils.getChildElementsByTagName(convertersElement, "bean", "ref")) {
-				Object object = context.getDelegate().parsePropertySubElement(beanElement, null);
-				converters.add(object);
-			}
+			//-
+//			for (Element beanElement : DomUtils.getChildElementsByTagName(convertersElement, "bean", "ref")) {
+//				Object object = context.getDelegate().parsePropertySubElement(beanElement, null);
+//				converters.add(object);
+//			}
 		}
 		if (convertersElement == null || Boolean.valueOf(convertersElement.getAttribute("register-defaults"))) {
 			converters.setSource(source);
@@ -589,10 +591,11 @@ class MessageBrokerBeanDefinitionParser implements BeanDefinitionParser {
 	private ManagedList<Object> extractBeanSubElements(Element parentElement, ParserContext context) {
 		ManagedList<Object> list = new ManagedList<>();
 		list.setSource(context.extractSource(parentElement));
-		for (Element beanElement : DomUtils.getChildElementsByTagName(parentElement, "bean", "ref")) {
-			Object object = context.getDelegate().parsePropertySubElement(beanElement, null);
-			list.add(object);
-		}
+		//-
+//		for (Element beanElement : DomUtils.getChildElementsByTagName(parentElement, "bean", "ref")) {
+//			Object object = context.getDelegate().parsePropertySubElement(beanElement, null);
+//			list.add(object);
+//		}
 		return list;
 	}
 

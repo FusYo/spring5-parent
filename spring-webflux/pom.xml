@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.fs</groupId>
-    <artifactId>spring5-maven</artifactId>
+    <artifactId>spring5-parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>spring-webflux</artifactId>
@@ -17,5 +17,68 @@
   		<artifactId>spring-context-support</artifactId>
   		<version>0.0.1-SNAPSHOT</version>
   	</dependency>
+  	
+  	<dependency>
+    <groupId>org.webjars</groupId>
+    <artifactId>webjars-locator</artifactId>
+    <version>0.32</version>
+</dependency>
+<!-- https://mvnrepository.com/artifact/org.eclipse.jetty.websocket/websocket-api -->
+<dependency>
+    <groupId>org.eclipse.jetty.websocket</groupId>
+    <artifactId>websocket-api</artifactId>
+    <version>9.4.30.v20200611</version>
+</dependency>
+<!-- https://mvnrepository.com/artifact/org.eclipse.jetty.websocket/websocket-common -->
+<dependency>
+    <groupId>org.eclipse.jetty.websocket</groupId>
+    <artifactId>websocket-common</artifactId>
+    <version>9.4.30.v20200611</version>
+</dependency>
+<!-- https://mvnrepository.com/artifact/org.freemarker/freemarker -->
+<dependency>
+    <groupId>org.freemarker</groupId>
+    <artifactId>freemarker</artifactId>
+    <version>2.3.30</version>
+</dependency>
+<!-- https://mvnrepository.com/artifact/io.projectreactor.ipc/reactor-netty -->
+<dependency>
+    <groupId>io.projectreactor.ipc</groupId>
+    <artifactId>reactor-netty</artifactId>
+    <version>0.7.15.RELEASE</version>
+</dependency>
+<!-- https://mvnrepository.com/artifact/io.projectreactor/reactor-core -->
+<dependency>
+    <groupId>io.projectreactor</groupId>
+    <artifactId>reactor-core</artifactId>
+    <version>3.3.7.RELEASE</version>
+</dependency>
+<!-- https://mvnrepository.com/artifact/io.projectreactor.netty/reactor-netty -->
+<dependency>
+    <groupId>io.projectreactor.netty</groupId>
+    <artifactId>reactor-netty</artifactId>
+    <version>0.9.9.RELEASE</version>
+</dependency>
+<!-- https://mvnrepository.com/artifact/javax.websocket/javax.websocket-api -->
+<dependency>
+    <groupId>javax.websocket</groupId>
+    <artifactId>javax.websocket-api</artifactId>
+    <version>1.1</version>
+    <scope>provided</scope>
+</dependency>
+<!-- https://mvnrepository.com/artifact/org.eclipse.jetty.websocket/websocket-server -->
+<dependency>
+    <groupId>org.eclipse.jetty.websocket</groupId>
+    <artifactId>websocket-server</artifactId>
+    <version>9.4.30.v20200611</version>
+</dependency>
+<!-- https://mvnrepository.com/artifact/org.apache.tomcat/tomcat-websocket -->
+<dependency>
+    <groupId>org.apache.tomcat</groupId>
+    <artifactId>tomcat-websocket</artifactId>
+    <version>10.0.0-M7</version>
+</dependency>
+
+
   </dependencies>
 </project>

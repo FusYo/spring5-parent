@@ -144,13 +144,13 @@ public class TomcatRequestUpgradeStrategy implements RequestUpgradeStrategy {
 		config.setSubprotocols(subProtocol != null ?
 				Collections.singletonList(subProtocol) : Collections.emptyList());
 
-		try {
-			WsServerContainer container = getContainer(servletRequest);
-			container.doUpgrade(servletRequest, servletResponse, config, Collections.emptyMap());
-		}
-		catch (ServletException | IOException ex) {
-			return Mono.error(ex);
-		}
+//		try {
+//			WsServerContainer container = getContainer(servletRequest);
+//			//container.doUpgrade(servletRequest, servletResponse, config, Collections.emptyMap());
+//		}
+//		catch (ServletException | IOException ex) {
+//			return Mono.error(ex);
+//		}
 
 		return Mono.empty();
 	}
@@ -171,7 +171,7 @@ public class TomcatRequestUpgradeStrategy implements RequestUpgradeStrategy {
 			Assert.state(container instanceof WsServerContainer,
 					"ServletContext attribute 'javax.websocket.server.ServerContainer' not found.");
 			this.serverContainer = (WsServerContainer) container;
-			initServerContainer(this.serverContainer);
+			//initServerContainer(this.serverContainer);
 		}
 		return this.serverContainer;
 	}

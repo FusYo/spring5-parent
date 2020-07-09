@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.fs</groupId>
-    <artifactId>spring5-maven</artifactId>
+    <artifactId>spring5-parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>spring-web</artifactId>
@@ -179,15 +179,17 @@
     <artifactId>aalto-xml</artifactId>
     <version>1.0.0</version>
 </dependency>
+<!-- https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-server -->
 <dependency>
     <groupId>org.eclipse.jetty</groupId>
     <artifactId>jetty-server</artifactId>
-    <version>10.0.0-alpha0</version>
+    <version>9.4.30.v20200611</version>
 </dependency>
+
 <dependency>
     <groupId>org.eclipse.jetty</groupId>
     <artifactId>jetty-servlet</artifactId>
-    <version>10.0.0-alpha0</version>
+    <version>9.4.30.v20200611</version>
 </dependency>
 <dependency>
     <groupId>org.apache.tomcat</groupId>
@@ -202,7 +204,7 @@
 <dependency>
     <groupId>org.apache.tomcat.embed</groupId>
     <artifactId>tomcat-embed-core</artifactId>
-    <version>8.5.30</version>
+    <version>9.0.37</version>
 </dependency>
 <dependency>
     <groupId>commons-fileupload</groupId>

@@ -61,9 +61,9 @@ public class StandardWebSocketClient extends AbstractWebSocketClient {
 	private final WebSocketContainer webSocketContainer;
 
 	private final Map<String,Object> userProperties = new HashMap<>();
-
+	//cast
 	@Nullable
-	private AsyncListenableTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
+	private AsyncListenableTaskExecutor taskExecutor = (AsyncListenableTaskExecutor) new SimpleAsyncTaskExecutor();
 
 
 	/**

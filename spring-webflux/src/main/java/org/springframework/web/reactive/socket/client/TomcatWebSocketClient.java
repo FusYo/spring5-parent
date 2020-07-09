@@ -36,7 +36,7 @@ public class TomcatWebSocketClient extends StandardWebSocketClient {
 
 
 	public TomcatWebSocketClient() {
-		this(new WsWebSocketContainer());
+		//this(new WsWebSocketContainer());
 	}
 
 	public TomcatWebSocketClient(WebSocketContainer webSocketContainer) {

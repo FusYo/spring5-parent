@@ -61,8 +61,9 @@ public class JettyWebSocketClient extends AbstractWebSocketClient implements Lif
 
 	private final org.eclipse.jetty.websocket.client.WebSocketClient client;
 
+	//cast
 	@Nullable
-	private AsyncListenableTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
+	private AsyncListenableTaskExecutor taskExecutor = (AsyncListenableTaskExecutor) new SimpleAsyncTaskExecutor();
 
 
 	/**
