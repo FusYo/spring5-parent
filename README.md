@@ -7,5 +7,5 @@ spring5源码分析，maven构建管理
   spring-beans:  spring-cglib-repack-3.2.5
   spring-aop:  spring-cglib-repack-3.2.5、spring-objenesis-repack-2.6
   spring-context:  spring-cglib-repack-3.2.5、spring-objenesis-repack-2.6
-  spring-webmvc
+  spring-webmvc:  spring-objenesis-repack-2.6
   
