@@ -398,7 +398,7 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 	@Override
 	@Nullable
 	public final HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception {
-		//获取Controller对象,但是获取到时对应方法的对象,方法对象中封装有controller对象
+		//但是获取对应方法的Controller对象,方法对象中封装有controller对象
 		//一路获取controller对象,把controller对象封装进方法对象中
 		Object handler = getHandlerInternal(request);
 		if (handler == null) {
@@ -416,7 +416,7 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
          //把方法对象和request传进去 ,准备把所有的拦截器封装进 HandlerExecutionChain对象中
 		HandlerExecutionChain executionChain = getHandlerExecutionChain(handler, request);
 
-      // 现在 HandlerExecutionChain 对象中有 方法对象 而方法对象中存储了controller对象, HandlerExecutionChain中有所有的拦截器对象
+      // 现在 HandlerExecutionChain 对象中有方法对象 而方法对象中存储了controller对象, HandlerExecutionChain中有所有的拦截器对象
 		if (logger.isTraceEnabled()) {
 			logger.trace("Mapped to " + handler);
 		}
@@ -474,21 +474,27 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 	 * @see #getAdaptedInterceptors()
 	 */
 	protected HandlerExecutionChain getHandlerExecutionChain(Object handler, HttpServletRequest request) {
-		//把传进来的方法对象,封装为一个 HandlerExecutionChain准备把拦截器封装进去
+		// 如果当前传入的 handler 非 HandlerExecutionChain 类型则根据 handler 创建一个 HandlerExecutionChain
+		//把传进来的方法对象(包含了方法所在的controller类名),封装为一个 HandlerExecutionChain准备把拦截器封装进去
 		HandlerExecutionChain chain = (handler instanceof HandlerExecutionChain ?
 				(HandlerExecutionChain) handler : new HandlerExecutionChain(handler));
 
 		//获取访问的url路径
 		String lookupPath = this.urlPathHelper.getLookupPathForRequest(request);
 		//开始遍历所有的拦截器,封装进  HandlerExecutionChain
+		//[org.springframework.web.servlet.handler.ConversionServiceExposingInterceptor@3f96c1e8, 
+		//org.springframework.web.servlet.resource.ResourceUrlProviderExposingInterceptor@9f55c6]
 		for (HandlerInterceptor interceptor : this.adaptedInterceptors) {
 			if (interceptor instanceof MappedInterceptor) {
+				 // 如果拦截器的类型为 MappedInterceptor 则需要判断请求路径与拦截器所拦截的路径是否匹配
 				MappedInterceptor mappedInterceptor = (MappedInterceptor) interceptor;
 				if (mappedInterceptor.matches(lookupPath, this.pathMatcher)) {
+					// 如果拦截器与请求路径相匹配则将其添加到刚刚创建的 HandlerExecutionChain 对象中
 					chain.addInterceptor(mappedInterceptor.getInterceptor());
 				}
 			}
 			else {
+				// 如果拦截器的类型不为 MappedInterceptor 则不需要验证直接添加到HandlerExecutionChain 对象中
 				chain.addInterceptor(interceptor);
 			}
 		}

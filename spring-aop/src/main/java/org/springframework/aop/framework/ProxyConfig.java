@@ -28,16 +28,23 @@ import org.springframework.util.Assert;
  * @author Juergen Hoeller
  * @see AdvisedSupport
  */
+/**
+ * 用于创建代理时使用的配置的便利超类，以确保所有代理创建者具有一致的属性
+ * @author fussen
+ * Aug 13, 2020 2:14:41 PM
+ */
 public class ProxyConfig implements Serializable {
 
 	/** use serialVersionUID from Spring 1.2 for interoperability */
 	private static final long serialVersionUID = -8409359707199703185L;
 
-
+	//标记是否直接对目标类进行代理，而不是通过接口产生代理
+	//false表示用JDK动态代理
 	private boolean proxyTargetClass = false;
-
+	//标记是否对代理进行优化
 	private boolean optimize = false;
-
+	//标记是否需要阻止通过该配置创建的代理对象转换为Advised类型
+	//默认值为false:表示代理对象可以被转换为Advised类型
 	boolean opaque = false;
 
 	boolean exposeProxy = false;

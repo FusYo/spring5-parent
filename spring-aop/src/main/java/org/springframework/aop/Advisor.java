@@ -33,6 +33,12 @@ import org.aopalliance.aop.Advice;
  * @author Rod Johnson
  * @author Juergen Hoeller
  */
+/**
+ * 持有AOP通知(在连接点采取的动作)的基本接口
+   以及决定通知的适用性的过滤器(例如切入点)
+ * @author fussen
+ * Aug 18, 2020 11:33:24 AM
+ */
 public interface Advisor {
 
 	/**
@@ -40,6 +46,7 @@ public interface Advisor {
 	 * {@link #getAdvice()} if no proper advice has been configured (yet).
 	 * @since 5.0
 	 */
+	//一个空的{@code Advice}的常用占位符，如果没有配置适当的Advice(还)，则从{@link #getAdvice()}返回
 	Advice EMPTY_ADVICE = new Advice() {};
 
 
@@ -52,6 +59,7 @@ public interface Advisor {
 	 * @see ThrowsAdvice
 	 * @see AfterReturningAdvice
 	 */
+	//返回这个方面的通知部分。一个通知可以是拦截器，一个前置通知，一个抛出异常通知等等
 	Advice getAdvice();
 
 	/**
@@ -64,6 +72,7 @@ public interface Advisor {
 	 * proxy creation to ensure that Advisors have the correct lifecycle model.
 	 * @return whether this advice is associated with a particular target instance
 	 */
+	//返回该通知是与特定实例相关联(例如，创建mixin)，还是与从同一个Spring bean工厂获得的已通知类的所有实例共享
 	boolean isPerInstance();
 
 }

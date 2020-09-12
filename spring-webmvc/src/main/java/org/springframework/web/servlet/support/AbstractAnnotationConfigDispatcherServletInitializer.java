@@ -50,12 +50,14 @@ public abstract class AbstractAnnotationConfigDispatcherServletInitializer
 	 * providing it the annotated classes returned by {@link #getRootConfigClasses()}.
 	 * Returns {@code null} if {@link #getRootConfigClasses()} returns {@code null}.
 	 */
+	//创建spring web跟容器实例
 	@Override
 	@Nullable
 	protected WebApplicationContext createRootApplicationContext() {
 		Class<?>[] configClasses = getRootConfigClasses();
 		if (!ObjectUtils.isEmpty(configClasses)) {
 			AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+			System.out.println("创建完spring 跟web容器 。。。。。。");
 			context.register(configClasses);
 			return context;
 		}
@@ -69,9 +71,11 @@ public abstract class AbstractAnnotationConfigDispatcherServletInitializer
 	 * <p>This implementation creates an {@link AnnotationConfigWebApplicationContext},
 	 * providing it the annotated classes returned by {@link #getServletConfigClasses()}.
 	 */
+	//这个实现创建一个{@link AnnotationConfigWebApplicationContext}，为它提供由{@link #getServletConfigClasses()}返回的注释类。
 	@Override
 	protected WebApplicationContext createServletApplicationContext() {
 		AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+		//拿到我们配置的类 [class com.fs.MvcConfig]，从子类，也就是我们自定义的类中调用同名方法
 		Class<?>[] configClasses = getServletConfigClasses();
 		if (!ObjectUtils.isEmpty(configClasses)) {
 			context.register(configClasses);

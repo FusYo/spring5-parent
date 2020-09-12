@@ -32,10 +32,17 @@ import org.springframework.util.Assert;
  * @see ScopeMetadataResolver
  * @see ScopedProxyMode
  */
+/**
+ * 描述spring管理bean的作用域特征，包括作用域名称和作用域代理行为
+ * @author fussen
+ * Jul 21, 2020 3:38:52 PM
+ */
 public class ScopeMetadata {
 
+	//singleton
 	private String scopeName = BeanDefinition.SCOPE_SINGLETON;
 
+	//不创建范围代理
 	private ScopedProxyMode scopedProxyMode = ScopedProxyMode.NO;
 
 

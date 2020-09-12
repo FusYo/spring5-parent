@@ -46,6 +46,11 @@ import org.springframework.util.ErrorHandler;
  * @author Stephane Nicoll
  * @see #setTaskExecutor
  */
+/**
+ * 将所有事件多传递给所有注册的侦听器，让侦听器忽略它们不感兴趣的事件。监听器通常会对传入的事件对象执行相应的{@code instanceof}检查
+ * @author fussen
+ * Jul 23, 2020 5:16:55 PM
+ */
 public class SimpleApplicationEventMulticaster extends AbstractApplicationEventMulticaster {
 
 	@Nullable
@@ -129,8 +134,10 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 
 	@Override
 	public void multicastEvent(final ApplicationEvent event, @Nullable ResolvableType eventType) {
+		//com.fs.event.spring.OrderEvent
 		ResolvableType type = (eventType != null ? eventType : resolveDefaultEventType(event));
 		Executor executor = getTaskExecutor();
+		//根据事件类型获取所有的事件列表，然后分别调用监听器
 		for (ApplicationListener<?> listener : getApplicationListeners(event, type)) {
 			if (executor != null) {
 				executor.execute(() -> invokeListener(listener, event));
@@ -151,7 +158,10 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 	 * @param event the current event to propagate
 	 * @since 4.1
 	 */
+	//使用给定的事件调用给定的监听器
 	protected void invokeListener(ApplicationListener<?> listener, ApplicationEvent event) {
+		//com.fs.event.spring.EmailListener@4fa1c212
+		//com.fs.event.spring.OrderEvent[source={account=1001}]
 		ErrorHandler errorHandler = getErrorHandler();
 		if (errorHandler != null) {
 			try {
@@ -166,9 +176,12 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
 		}
 	}
 
+	//真正执行调用的方法
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	private void doInvokeListener(ApplicationListener listener, ApplicationEvent event) {
 		try {
+			// //调用自定义监听器的onApplicationEvent方法
+			System.out.println("SimpleApplicationEventMulticaster.doInvokeListener()方法，监听者执行事件发布。。。。。。");
 			listener.onApplicationEvent(event);
 		}
 		catch (ClassCastException ex) {

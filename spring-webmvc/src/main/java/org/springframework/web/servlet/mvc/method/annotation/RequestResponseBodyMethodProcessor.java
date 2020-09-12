@@ -122,15 +122,19 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 	 * is {@code true} and there is no body content or if there is no suitable
 	 * converter to read the content with.
 	 */
+	//针对@RequestBody注解型的请求参数进行解析
 	@Override
 	public Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
 			NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception {
 
 		parameter = parameter.nestedIfOptional();
+		//参数值：com.fs.pojo.User@5d347e54
 		Object arg = readWithMessageConverters(webRequest, parameter, parameter.getNestedGenericParameterType());
+		//参数名：user
 		String name = Conventions.getVariableNameForParameter(parameter);
 
 		if (binderFactory != null) {
+			//绑定
 			WebDataBinder binder = binderFactory.createBinder(webRequest, arg, name);
 			if (arg != null) {
 				validateIfApplicable(binder, parameter);
@@ -139,6 +143,7 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 				}
 			}
 			if (mavContainer != null) {
+				//org.springframework.validation.BindingResult.user
 				mavContainer.addAttribute(BindingResult.MODEL_KEY_PREFIX + name, binder.getBindingResult());
 			}
 		}
@@ -171,12 +176,13 @@ public class RequestResponseBodyMethodProcessor extends AbstractMessageConverter
 	public void handleReturnValue(@Nullable Object returnValue, MethodParameter returnType,
 			ModelAndViewContainer mavContainer, NativeWebRequest webRequest)
 			throws IOException, HttpMediaTypeNotAcceptableException, HttpMessageNotWritableException {
-
+		//设置为true，后面处理ModelAndView的时候，判断为true的时候，返回null,也就是针对没有返回页面的返回值，不需要创建ModelAndView对象
 		mavContainer.setRequestHandled(true);
 		ServletServerHttpRequest inputMessage = createInputMessage(webRequest);
 		ServletServerHttpResponse outputMessage = createOutputMessage(webRequest);
 
 		// Try even with null return value. ResponseBodyAdvice could get involved.
+		//尝试null返回值。ResponseBodyAdvice可以参与进来
 		writeWithMessageConverters(returnValue, returnType, inputMessage, outputMessage);
 	}
 

@@ -115,6 +115,12 @@ import org.springframework.util.StringUtils;
  * @see Autowired
  * @see Value
  */
+/**
+ * {@link org.springframework.beans.factory.config.BeanPostProcessor} 实现了注解字段、setter方法和任意配置方法的自动装配。
+ * 这些要注入的成员通过Java 5注释检测:默认情况下，Spring的{@link Autowired @Autowired}和{@link Value @Value}注释
+ * @author fussen
+ * Jul 28, 2020 7:44:24 PM
+ */
 public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBeanPostProcessorAdapter
 		implements MergedBeanDefinitionPostProcessor, PriorityOrdered, BeanFactoryAware {
 
@@ -134,7 +140,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 	private final Set<String> lookupMethodsChecked = Collections.newSetFromMap(new ConcurrentHashMap<>(256));
 
 	private final Map<Class<?>, Constructor<?>[]> candidateConstructorsCache = new ConcurrentHashMap<>(256);
-
+	//注解元信息容器
 	private final Map<String, InjectionMetadata> injectionMetadataCache = new ConcurrentHashMap<>(256);
 
 
@@ -143,6 +149,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 	 * for Spring's standard {@link Autowired} annotation.
 	 * <p>Also supports JSR-330's {@link javax.inject.Inject} annotation, if available.
 	 */
+	//为Spring的标准{@link Autowired}注释编写一个新的AutowiredAnnotationBeanPostProcessor
 	@SuppressWarnings("unchecked")
 	public AutowiredAnnotationBeanPostProcessor() {
 		this.autowiredAnnotationTypes.add(Autowired.class);
@@ -227,6 +234,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 
 	@Override
 	public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Class<?> beanType, String beanName) {
+		//获取被注解标注的元数据
 		InjectionMetadata metadata = findAutowiringMetadata(beanName, beanType, null);
 		metadata.checkConfigMembers(beanDefinition);
 	}
@@ -369,9 +377,11 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 
 	@Override
 	public PropertyValues postProcessProperties(PropertyValues pvs, Object bean, String beanName) {
+		//获取注解元数据 
 		InjectionMetadata metadata = findAutowiringMetadata(beanName, bean.getClass(), pvs);
 		try {
 			//点击这个 把原生对象 bean  ,beanName 传进去
+			//注入
 			metadata.inject(bean, beanName, pvs);
 		}
 		catch (BeanCreationException ex) {
@@ -415,17 +425,23 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 
 	private InjectionMetadata findAutowiringMetadata(String beanName, Class<?> clazz, @Nullable PropertyValues pvs) {
 		// Fall back to class name as cache key, for backwards compatibility with custom callers.
+		//返回到类名作为缓存键，以便向后兼容自定义调用者
 		String cacheKey = (StringUtils.hasLength(beanName) ? beanName : clazz.getName());
 		// Quick check on the concurrent map first, with minimal locking.
+		// 尝试从缓存中获取相关注解元信息
 		InjectionMetadata metadata = this.injectionMetadataCache.get(cacheKey);
+		//如果为空值或者当前类与注解元信息对应类不一致，进入if
 		if (InjectionMetadata.needsRefresh(metadata, clazz)) {
+			//双重检查锁
 			synchronized (this.injectionMetadataCache) {
 				metadata = this.injectionMetadataCache.get(cacheKey);
 				if (InjectionMetadata.needsRefresh(metadata, clazz)) {
 					if (metadata != null) {
 						metadata.clear(pvs);
 					}
+					//构建自动装配元数据
 					metadata = buildAutowiringMetadata(clazz);
+					//将得到的给定类autowire相关注解元信息存储在容器缓存中
 					this.injectionMetadataCache.put(cacheKey, metadata);
 				}
 			}
@@ -433,46 +449,56 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 		return metadata;
 	}
 
+	//解析给定类@Autowired相关注解元信息
 	private InjectionMetadata buildAutowiringMetadata(final Class<?> clazz) {
 		List<InjectionMetadata.InjectedElement> elements = new ArrayList<>();
 		Class<?> targetClass = clazz;
 
 		do {
 			final List<InjectionMetadata.InjectedElement> currElements = new ArrayList<>();
-
+			//属性元素
 			ReflectionUtils.doWithLocalFields(targetClass, field -> {
+				// 获取属性上的注解的配置属性，包括@Autowire和@Value注解
+				//利用反射机制获取声明字段，获取字段上的注解信息
 				AnnotationAttributes ann = findAutowiredAnnotation(field);
 				if (ann != null) {
+					// 不支持在static属性上使用@Autowire注解
 					if (Modifier.isStatic(field.getModifiers())) {
 						if (logger.isInfoEnabled()) {
 							logger.info("Autowired annotation is not supported on static fields: " + field);
 						}
 						return;
 					}
+					// 获取required属性
 					boolean required = determineRequiredStatus(ann);
+					//将当前字段元信息封装，添加到返回集合中
 					currElements.add(new AutowiredFieldElement(field, required));
 				}
 			});
-
+			//方法元素
 			ReflectionUtils.doWithLocalMethods(targetClass, method -> {
 				Method bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
 				if (!BridgeMethodResolver.isVisibilityBridgeMethodPair(method, bridgedMethod)) {
 					return;
 				}
+				// 获取方法上的注解的配置属性，包括@Autowire和@Value注解
 				AnnotationAttributes ann = findAutowiredAnnotation(bridgedMethod);
 				if (ann != null && method.equals(ClassUtils.getMostSpecificMethod(method, clazz))) {
+					 // 不支持在static方法上使用@Autowire注解
 					if (Modifier.isStatic(method.getModifiers())) {
 						if (logger.isInfoEnabled()) {
 							logger.info("Autowired annotation is not supported on static methods: " + method);
 						}
 						return;
 					}
+					 // 方法必须有参数，不然没意义
 					if (method.getParameterCount() == 0) {
 						if (logger.isInfoEnabled()) {
 							logger.info("Autowired annotation should only be used on methods with parameters: " +
 									method);
 						}
 					}
+					// 获取required属性
 					boolean required = determineRequiredStatus(ann);
 					PropertyDescriptor pd = BeanUtils.findPropertyForMethod(bridgedMethod, clazz);
 					currElements.add(new AutowiredMethodElement(method, required, pd));
@@ -489,6 +515,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 
 	@Nullable
 	private AnnotationAttributes findAutowiredAnnotation(AccessibleObject ao) {
+		//自动装配注释必须是本地的
 		if (ao.getAnnotations().length > 0) {  // autowiring annotations have to be local
 			for (Class<? extends Annotation> type : this.autowiredAnnotationTypes) {
 				AnnotationAttributes attributes = AnnotatedElementUtils.getMergedAnnotationAttributes(ao, type);
@@ -579,22 +606,31 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 
 		@Override
 		protected void inject(Object bean, @Nullable String beanName, @Nullable PropertyValues pvs) throws Throwable {
+			//private com.fs.service.Demo2Service com.fs.service.impl.Demo1ServiceImpl.demo2Service
 			Field field = (Field) this.member;
 			Object value;
 			//第一次没有缓存
 			if (this.cached) {
+				 // 如果已经缓存，判断是否需要处理依赖，需要则处理，不需要直接返回，处理依赖的流程上文分析过
 				value = resolvedCachedArgument(beanName, this.cachedFieldValue);
 			}
 			else {
-				//创建一个描述类描述
+				//--》创建一个依赖描述实例
+				//field 'demo2Service'
 				DependencyDescriptor desc = new DependencyDescriptor(field, this.required);
 				//设置class值
 				desc.setContainingClass(bean.getClass());
+				//自动注入属性结合
 				Set<String> autowiredBeanNames = new LinkedHashSet<>(1);
 				Assert.state(beanFactory != null, "No BeanFactory available");
 				TypeConverter typeConverter = beanFactory.getTypeConverter();
 				try {
 					//点击这里  desc 描述类   autowiredBeanNames空集合    typeConverter对象没有任何值
+					// ---》 处理依赖，流程上文分析过
+					//demo2ServiceImpl：在初始化之前执行后置处理器。。。
+					//demo2ServiceImpl:初始化前进入自定义CustomBeanPostProcessor的前置方法
+					//demo2ServiceImpl:初始化后进入自定义CustomBeanPostProcessor的后置方法
+					//---》 这里最终会调用AbstractBeanFactory.doGetBean()方法，这样就获取到了当前属性所对应的类的对象实例
 					value = beanFactory.resolveDependency(desc, beanName, autowiredBeanNames, typeConverter);
 				}
 				catch (BeansException ex) {
@@ -604,11 +640,16 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 					if (!this.cached) {
 						if (value != null || this.required) {
 							this.cachedFieldValue = desc;
+							// 注册依赖
 							registerDependentBeans(beanName, autowiredBeanNames);
 							if (autowiredBeanNames.size() == 1) {
+								//demo2ServiceImpl
 								String autowiredBeanName = autowiredBeanNames.iterator().next();
+								// 按照类型进行匹配
 								if (beanFactory.containsBean(autowiredBeanName) &&
 										beanFactory.isTypeMatch(autowiredBeanName, field.getType())) {
+									// 缓存匹配到的属性的值
+									//field 'demo2Service'
 									this.cachedFieldValue = new ShortcutDependencyDescriptor(
 											desc, autowiredBeanName, field.getType());
 								}
@@ -622,9 +663,12 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 				}
 			}
 			if (value != null) {
+				//field.setAccessible(true)
 				ReflectionUtils.makeAccessible(field);
 				//这里进行自动装配,填充对象
+				// 反射为属性赋值
 				field.set(bean, value);
+				System.out.println("---> 当前所属类为："+beanName+ ";" + "类的属性为："+field.getName()+"； 已将属性实例化到所属类中 <---");
 			}
 		}
 	}

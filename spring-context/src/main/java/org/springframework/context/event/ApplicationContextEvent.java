@@ -25,6 +25,11 @@ import org.springframework.context.ApplicationEvent;
  * @author Juergen Hoeller
  * @since 2.5
  */
+/**
+ * 为{@code ApplicationContext}引发的事件的基类
+ * @author fussen
+ * Jul 23, 2020 10:09:54 AM
+ */
 @SuppressWarnings("serial")
 public abstract class ApplicationContextEvent extends ApplicationEvent {
 

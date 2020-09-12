@@ -247,12 +247,14 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 	 * @param basePackages the packages to check for annotated classes
 	 * @return number of beans registered
 	 */
+	//在指定的基本包内执行扫描
 	public int scan(String... basePackages) {
 		int beanCountAtScanStart = this.registry.getBeanDefinitionCount();
-
+		//具体扫描操作
 		doScan(basePackages);
 
 		// Register annotation config processors, if necessary.
+		//注册注释配置处理器，如果需要的话
 		if (this.includeAnnotationConfig) {
 			AnnotationConfigUtils.registerAnnotationConfigProcessors(this.registry);
 		}
@@ -268,6 +270,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 	 * @param basePackages the packages to check for annotated classes
 	 * @return set of beans registered if any for tooling registration purposes (never {@code null})
 	 */
+	//在指定的基本包中执行扫描，返回注册的bean定义
 	protected Set<BeanDefinitionHolder> doScan(String... basePackages) {
 		//可能是多个参数的
 		Assert.notEmpty(basePackages, "At least one base package must be specified");
@@ -277,11 +280,16 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 			//扫描basePackage包下的java文件并把文件转换为BeanDefinition
 			//这里面使用asm扫描 Class文件
 			Set<BeanDefinition> candidates = findCandidateComponents(basePackage);
-
+			//[Generic bean: class [com.fs.controller.DemoController]; scope=; abstract=false; lazyInit=false; autowireMode=0; dependencyCheck=0; autowireCandidate=true; primary=false; factoryBeanName=null; factoryMethodName=null; initMethodName=null; destroyMethodName=null; 
+			//defined in file [/Users/fussen/Desktop/workspace/spring5-parent/spring5-parent/opr-test/target/classes/com/fs/controller/DemoController.class], 
+			//Generic bean: class [com.fs.service.impl.Demo1ServiceImpl]; scope=; abstract=false; lazyInit=false; autowireMode=0; dependencyCheck=0; autowireCandidate=true; primary=false; factoryBeanName=null; factoryMethodName=null; initMethodName=null; destroyMethodName=null; 
+			//defined in file [/Users/fussen/Desktop/workspace/spring5-parent/spring5-parent/opr-test/target/classes/com/fs/service/impl/Demo1ServiceImpl.class], Generic bean: class [com.fs.service.impl.Demo2ServiceImpl]; scope=; abstract=false; lazyInit=false; autowireMode=0; dependencyCheck=0; autowireCandidate=true; primary=false; factoryBeanName=null; factoryMethodName=null; initMethodName=null; destroyMethodName=null; 
+			//defined in file [/Users/fussen/Desktop/workspace/spring5-parent/spring5-parent/opr-test/target/classes/com/fs/service/impl/Demo2ServiceImpl.class]]
 			for (BeanDefinition candidate : candidates) {
 				//当前的BeanDefinition是单例的,还是多例的
 				ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(candidate);
 				candidate.setScope(scopeMetadata.getScopeName());
+				//获取首字母小写bean名称
 				String beanName = this.beanNameGenerator.generateBeanName(candidate, this.registry);
 
 				if (candidate instanceof AbstractBeanDefinition) {
@@ -301,7 +309,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 					definitionHolder =
 							AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
 					beanDefinitions.add(definitionHolder);
-					//这个是重点,  在这里终于把 扫描beanDefinition添加进bean工厂中
+					//这个是重点,  在这里终于把扫描beanDefinition添加进bean工厂中
 					registerBeanDefinition(definitionHolder, this.registry);
 				}
 			}
@@ -329,6 +337,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 	 * @param definitionHolder the bean definition plus bean name for the bean
 	 * @param registry the BeanDefinitionRegistry to register the bean with
 	 */
+	//将指定的bean注册到给定的注册中心
 	protected void registerBeanDefinition(BeanDefinitionHolder definitionHolder, BeanDefinitionRegistry registry) {
 		BeanDefinitionReaderUtils.registerBeanDefinition(definitionHolder, registry);
 	}

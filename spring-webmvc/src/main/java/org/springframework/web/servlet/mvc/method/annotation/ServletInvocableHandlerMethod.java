@@ -98,10 +98,13 @@ public class ServletInvocableHandlerMethod extends InvocableHandlerMethod {
 	 * @param mavContainer the ModelAndViewContainer for this request
 	 * @param providedArgs "given" arguments matched by type (not resolved)
 	 */
+	//调用该方法并通过一个已配置的{@link HandlerMethodReturnValueHandler HandlerMethodReturnValueHandlers}处理返回值
 	public void invokeAndHandle(ServletWebRequest webRequest, ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
 
+		// //从request中解析出HandlerMethod方法所需要的参数
 		//点击这里 returnValue为Controller返回的内容,有可能是一个对象,有可能是一个字符串
+		//返回json字符串
 		Object returnValue = invokeForRequest(webRequest, mavContainer, providedArgs);
 		setResponseStatus(webRequest);
 

@@ -89,6 +89,7 @@ public class ExposeInvocationInterceptor implements MethodInterceptor, PriorityO
 		MethodInvocation oldInvocation = invocation.get();
 		invocation.set(mi);
 		try {
+			System.out.println("============ 执行到ExposeInvocationInterceptor");
 			return mi.proceed();
 		}
 		finally {

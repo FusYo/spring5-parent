@@ -35,6 +35,11 @@ import org.springframework.lang.Nullable;
  * @since 2.0.3
  * @see InstantiationAwareBeanPostProcessorAdapter
  */
+/**
+ * 扩展了{@link InstantiationAwareBeanPostProcessor}接口，添加了一个回调，用于预测已处理bean的最终类型
+ * @author fussen
+ * Aug 18, 2020 10:43:18 AM
+ */
 public interface SmartInstantiationAwareBeanPostProcessor extends InstantiationAwareBeanPostProcessor {
 
 	/**

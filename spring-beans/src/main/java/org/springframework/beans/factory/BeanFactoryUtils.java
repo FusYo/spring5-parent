@@ -78,11 +78,13 @@ public abstract class BeanFactoryUtils {
 	 * @return the transformed name
 	 * @see BeanFactory#FACTORY_BEAN_PREFIX
 	 */
+	//返回实际的bean名称，去掉工厂取消引用前缀(如果有的话，也去掉重复的工厂前缀)
 	public static String transformedBeanName(String name) {
 		Assert.notNull(name, "'name' must not be null");
 		if (!name.startsWith(BeanFactory.FACTORY_BEAN_PREFIX)) {
 			return name;
 		}
+		//返回去掉&之后的beanName
 		return transformedBeanNameCache.computeIfAbsent(name, beanName -> {
 			do {
 				beanName = beanName.substring(BeanFactory.FACTORY_BEAN_PREFIX.length());
@@ -224,6 +226,7 @@ public abstract class BeanFactoryUtils {
 			ListableBeanFactory lbf, Class<?> type, boolean includeNonSingletons, boolean allowEagerInit) {
 
 		Assert.notNull(lbf, "ListableBeanFactory must not be null");
+		//includeNonSingletons = true;allowEagerInit = false
 		String[] result = lbf.getBeanNamesForType(type, includeNonSingletons, allowEagerInit);
 		if (lbf instanceof HierarchicalBeanFactory) {
 			HierarchicalBeanFactory hbf = (HierarchicalBeanFactory) lbf;

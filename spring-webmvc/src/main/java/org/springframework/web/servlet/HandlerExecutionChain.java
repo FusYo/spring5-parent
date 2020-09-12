@@ -128,7 +128,10 @@ public class HandlerExecutionChain {
 	 * next interceptor or the handler itself. Else, DispatcherServlet assumes
 	 * that this interceptor has already dealt with the response itself.
 	 */
+	//应用已注册的拦截器的预处理方法
 	boolean applyPreHandle(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		//[org.springframework.web.servlet.handler.ConversionServiceExposingInterceptor@1701628f, 
+		//org.springframework.web.servlet.resource.ResourceUrlProviderExposingInterceptor@564b391e]
 		HandlerInterceptor[] interceptors = getInterceptors();
 		if (!ObjectUtils.isEmpty(interceptors)) {
 			for (int i = 0; i < interceptors.length; i++) {

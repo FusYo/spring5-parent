@@ -177,6 +177,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 	 * @throws HttpMediaTypeNotAcceptableException thrown when the conditions indicated
 	 * by the {@code Accept} header on the request cannot be met by the message converters
 	 */
+	//将给定的返回类型写入给定的输出消息
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	protected <T> void writeWithMessageConverters(@Nullable T value, MethodParameter returnType,
 			ServletServerHttpRequest inputMessage, ServletServerHttpResponse outputMessage)
@@ -185,7 +186,8 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 		Object body;
 		Class<?> valueType;
 		Type targetType;
-
+		
+		//josn字符串进入if分支
 		if (value instanceof CharSequence) {
 			body = value.toString();
 			valueType = String.class;
@@ -196,7 +198,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 			valueType = getReturnValueType(body, returnType);
 			targetType = GenericTypeResolver.resolveType(getGenericType(returnType), returnType.getContainingClass());
 		}
-
+		//false
 		if (isResourceType(value, returnType)) {
 			outputMessage.getHeaders().set(HttpHeaders.ACCEPT_RANGES, "bytes");
 			if (value != null && inputMessage.getHeaders().getFirst(HttpHeaders.RANGE) != null &&
@@ -217,6 +219,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 		}
 
 		MediaType selectedMediaType = null;
+		//null
 		MediaType contentType = outputMessage.getHeaders().getContentType();
 		if (contentType != null && contentType.isConcrete()) {
 			if (logger.isDebugEnabled()) {
@@ -226,7 +229,9 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 		}
 		else {
 			HttpServletRequest request = inputMessage.getServletRequest();
+			//[text/html, application/xhtml+xml, image/webp, image/apng, application/xml;q=0.9, application/signed-exchange;v=b3;q=0.9, */*;q=0.8]
 			List<MediaType> acceptableTypes = getAcceptableMediaTypes(request);
+			//[text/plain, */*, application/xml, text/xml, application/*+xml, application/json, application/*+json, application/x-jackson-smile, application/cbor]
 			List<MediaType> producibleTypes = getProducibleMediaTypes(request, valueType, targetType);
 
 			if (body != null && producibleTypes.isEmpty()) {
@@ -252,7 +257,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 			}
 
 			MediaType.sortBySpecificityAndQuality(mediaTypesToUse);
-
+			//[text/plain, application/xml, text/xml, application/json, application/x-jackson-smile, application/cbor, application/*+xml, application/*+json, */*]
 			for (MediaType mediaType : mediaTypesToUse) {
 				if (mediaType.isConcrete()) {
 					selectedMediaType = mediaType;
@@ -269,27 +274,45 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 						acceptableTypes + " and supported " + producibleTypes);
 			}
 		}
-
+		//text/plain
 		if (selectedMediaType != null) {
+			//text/plain
 			selectedMediaType = selectedMediaType.removeQualityValue();
+			//[org.springframework.http.converter.ByteArrayHttpMessageConverter@46cc02c2, 
+			//org.springframework.http.converter.StringHttpMessageConverter@37f71159, 
+			//org.springframework.http.converter.ResourceHttpMessageConverter@3eea9e81, 
+			//org.springframework.http.converter.ResourceRegionHttpMessageConverter@66142cf7, 
+			//org.springframework.http.converter.xml.SourceHttpMessageConverter@4068e8e5, 
+			//org.springframework.http.converter.support.AllEncompassingFormHttpMessageConverter@4f9a5468, 
+			//org.springframework.http.converter.feed.AtomFeedHttpMessageConverter@25eed58c, 
+			//org.springframework.http.converter.feed.RssChannelHttpMessageConverter@625a3652, 
+			//org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter@65f2c53c, 
+			//org.springframework.http.converter.json.MappingJackson2HttpMessageConverter@7856e4fe, 
+			//org.springframework.http.converter.smile.MappingJackson2SmileHttpMessageConverter@2b470ccd, 
+			//org.springframework.http.converter.cbor.MappingJackson2CborHttpMessageConverter@189c5751]
 			for (HttpMessageConverter<?> converter : this.messageConverters) {
 				GenericHttpMessageConverter genericConverter = (converter instanceof GenericHttpMessageConverter ?
 						(GenericHttpMessageConverter<?>) converter : null);
 				if (genericConverter != null ?
 						((GenericHttpMessageConverter) converter).canWrite(targetType, valueType, selectedMediaType) :
 						converter.canWrite(valueType, selectedMediaType)) {
+					//converter : org.springframework.http.converter.StringHttpMessageConverter@37f71159
+					//MY NAME is :fs
 					body = getAdvice().beforeBodyWrite(body, returnType, selectedMediaType,
 							(Class<? extends HttpMessageConverter<?>>) converter.getClass(),
 							inputMessage, outputMessage);
+					//body:返回的数据
 					if (body != null) {
 						Object theBody = body;
 						LogFormatUtils.traceDebug(logger, traceOn ->
 								"Writing [" + LogFormatUtils.formatValue(theBody, !traceOn) + "]");
 						addContentDispositionHeader(inputMessage, outputMessage);
+						//genericConverter == null
 						if (genericConverter != null) {
 							genericConverter.write(body, targetType, selectedMediaType, outputMessage);
 						}
 						else {
+							//输出
 							((HttpMessageConverter) converter).write(body, selectedMediaType, outputMessage);
 						}
 					}

@@ -80,6 +80,7 @@ class ApplicationContextAwareProcessor implements BeanPostProcessor {
 	@Override
 	@Nullable
 	public Object postProcessBeforeInitialization(final Object bean, String beanName) throws BeansException {
+		System.out.println(beanName+"：在初始化之前执行后置处理器。。。");
 		AccessControlContext acc = null;
          //这个方法不会进入
 		if (System.getSecurityManager() != null &&

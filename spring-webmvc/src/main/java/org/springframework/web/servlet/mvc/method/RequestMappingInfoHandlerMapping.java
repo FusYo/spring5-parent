@@ -113,25 +113,28 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 
 		String bestPattern;
 		Map<String, String> uriVariables;
-
+		//[/demo/helloArgs]
 		Set<String> patterns = info.getPatternsCondition().getPatterns();
 		if (patterns.isEmpty()) {
 			bestPattern = lookupPath;
 			uriVariables = Collections.emptyMap();
 		}
 		else {
+			///demo/helloArgs
 			bestPattern = patterns.iterator().next();
+			//{}
 			uriVariables = getPathMatcher().extractUriTemplateVariables(bestPattern, lookupPath);
 		}
-
+		//org.springframework.web.servlet.HandlerMapping.bestMatchingPattern
 		request.setAttribute(BEST_MATCHING_PATTERN_ATTRIBUTE, bestPattern);
-
+		//false
 		if (isMatrixVariableContentAvailable()) {
 			Map<String, MultiValueMap<String, String>> matrixVars = extractMatrixVariables(request, uriVariables);
 			request.setAttribute(HandlerMapping.MATRIX_VARIABLES_ATTRIBUTE, matrixVars);
 		}
-
+		//{}
 		Map<String, String> decodedUriVariables = getUrlPathHelper().decodePathVariables(request, uriVariables);
+		//org.springframework.web.servlet.HandlerMapping.uriTemplateVariables
 		request.setAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, decodedUriVariables);
 
 		if (!info.getProducesCondition().getProducibleMediaTypes().isEmpty()) {

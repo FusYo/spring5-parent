@@ -174,6 +174,14 @@ import javax.servlet.ServletException;
  * @see org.springframework.web.servlet.support.AbstractDispatcherServletInitializer
  * @see org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer
  */
+/**
+ * 实现该接口可以在Servlet 3.0 +环境中以编程方式配置ServletContext，而不是(或结合)传统的基于web.xml文件配置。
+ * 实现由SpringServletContainerInitializer SPI将自动检测到,这本身就是由任何Servlet 3.0容器自动引导
+ * 
+ * 即：通过实现该接口，可以实现注解方式启动加载web项目，等同于web.xml
+ * @author fussen
+ * Sep 3, 2020 9:35:06 PM
+ */
 public interface WebApplicationInitializer {
 
 	/**
@@ -184,6 +192,7 @@ public interface WebApplicationInitializer {
 	 * @throws ServletException if any call against the given {@code ServletContext}
 	 * throws a {@code ServletException}
 	 */
+	//初始化web应用程序所需的上下文参数和属性
 	void onStartup(ServletContext servletContext) throws ServletException;
 
 }

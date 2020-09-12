@@ -43,9 +43,14 @@ import org.springframework.util.ClassUtils;
  * @author Ramnivas Laddad
  * @since 2.0
  */
+/**
+ * 处理AspectJ切面的创建器-xml配置版
+ * @author fussen
+ * Aug 18, 2020 11:22:57 AM
+ */
 @SuppressWarnings("serial")
 public class AspectJAwareAdvisorAutoProxyCreator extends AbstractAdvisorAutoProxyCreator {
-
+	// 默认的排序器，它就不是根据Order来了，而是根据@Afeter @Before类似的标注来排序
 	private static final Comparator<Advisor> DEFAULT_PRECEDENCE_COMPARATOR = new AspectJPrecedenceComparator();
 
 
@@ -64,6 +69,10 @@ public class AspectJAwareAdvisorAutoProxyCreator extends AbstractAdvisorAutoProx
 	 * advisor should run first. "On the way out" of a join point, the highest precedence
 	 * advisor should run last.
 	 */
+	//按AspectJ优先级对其余的进行排序。如果两条建议来自同一方面，它们的顺序也会相同。然后根据以下规则对来自同一方面的建议进行进一步排序
+	// 核心逻辑：它重写了排序
+	// 这个排序和org.aspectj.util提供的PartialOrder和PartialComparable有关
+	// 这块排序算法还是比较复杂的，控制着最终的执行顺序
 	@Override
 	@SuppressWarnings("unchecked")
 	protected List<Advisor> sortAdvisors(List<Advisor> advisors) {
@@ -92,14 +101,19 @@ public class AspectJAwareAdvisorAutoProxyCreator extends AbstractAdvisorAutoProx
 	 * These additional advices are needed when using AspectJ expression pointcuts
 	 * and when using AspectJ-style advice.
 	 */
+	// 这个就是对已有的Advisor做了一个扩展：
+	// AspectJProxyUtils这个工具类只有这一个方法（其实每次addAspect()的时候，都会调用此方法）
+	// 作用：若存在AspectJ的Advice，就会在advisors的第一个位置加入ExposeInvocationInterceptor.ADVISOR这个advisor
 	@Override
 	protected void extendAdvisors(List<Advisor> candidateAdvisors) {
 		AspectJProxyUtils.makeAdvisorChainAspectJCapableIfNecessary(candidateAdvisors);
 	}
 
+	//AspectJPointcutAdvisor的子类不要拦截、AspectJ切面自己的所有方法不要去拦截
 	@Override
 	protected boolean shouldSkip(Class<?> beanClass, String beanName) {
 		// TODO: Consider optimization by caching the list of the aspect names
+		//调用的是子类AnnotationAwareAspectJAutoProxyCreator的实现方法
 		List<Advisor> candidateAdvisors = findCandidateAdvisors();
 		for (Advisor advisor : candidateAdvisors) {
 			if (advisor instanceof AspectJPointcutAdvisor) {
@@ -108,6 +122,7 @@ public class AspectJAwareAdvisorAutoProxyCreator extends AbstractAdvisorAutoProx
 				}
 			}
 		}
+		// 父类返回的false
 		return super.shouldSkip(beanClass, beanName);
 	}
 
@@ -115,6 +130,7 @@ public class AspectJAwareAdvisorAutoProxyCreator extends AbstractAdvisorAutoProx
 	/**
 	 * Implements AspectJ PartialComparable interface for defining partial orderings.
 	 */
+	//实现AspectJ PartialComparable接口，用于定义部分排序
 	private static class PartiallyComparableAdvisorHolder implements PartialComparable {
 
 		private final Advisor advisor;

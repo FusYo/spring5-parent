@@ -45,14 +45,23 @@ import org.springframework.util.ReflectionUtils;
  * @author Juergen Hoeller
  * @since 2.5
  */
+/**
+ * 用于管理注入元数据的内部类。
+   不打算在应用程序中直接使用
+ * @author fussen
+ * Jul 28, 2020 7:52:45 PM
+ */
 public class InjectionMetadata {
 
 	private static final Log logger = LogFactory.getLog(InjectionMetadata.class);
 
 	private final Class<?> targetClass;
-
+	//当post-processor处理bean时，会解析bean class的所有属性
+	//在解析是会判断属性上是否标有@Autowired、@Value注解
+	//有就解析这个属性值，将解析后的结果放入这里
+	//保存被注入元素的全量集合(包括spring处理的或者外部处理的)
 	private final Collection<InjectedElement> injectedElements;
-
+	//和InjectedElements一样，不过只保存了由spring容器默认进行处理的属性或者方法
 	@Nullable
 	private volatile Set<InjectedElement> checkedElements;
 
@@ -83,6 +92,7 @@ public class InjectionMetadata {
 		Collection<InjectedElement> checkedElements = this.checkedElements;
 		Collection<InjectedElement> elementsToIterate =
 				(checkedElements != null ? checkedElements : this.injectedElements);
+		//AutowiredFieldElement for private com.fs.service.Demo2Service com.fs.service.impl.Demo1ServiceImpl.demo2Service
 		if (!elementsToIterate.isEmpty()) {
 			//开始遍历所有的描述类
 			for (InjectedElement element : elementsToIterate) {
@@ -90,6 +100,7 @@ public class InjectionMetadata {
 					logger.trace("Processing injected element of bean '" + beanName + "': " + element);
 				}
 				//点击这里target原生对象
+				//注入
 				element.inject(target, beanName, pvs);
 			}
 		}
@@ -119,12 +130,13 @@ public class InjectionMetadata {
 	/**
 	 * A single injected element.
 	 */
+	//单注入元件
 	public abstract static class InjectedElement {
-
+		//被注解标记的成员，Field还是Method
 		protected final Member member;
-
+		//是否为Field被注入
 		protected final boolean isField;
-
+		//属性描述，Java beans中的接口
 		@Nullable
 		protected final PropertyDescriptor pd;
 

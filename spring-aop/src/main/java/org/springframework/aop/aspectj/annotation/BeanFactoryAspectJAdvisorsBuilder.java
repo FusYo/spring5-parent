@@ -38,15 +38,21 @@ import org.springframework.util.Assert;
  * @since 2.0.2
  * @see AnnotationAwareAspectJAutoProxyCreator
  */
+/**
+ * 帮助器，用于从BeanFactory检索@AspectJ bean并基于它们构建Spring通知器，用于自动代理
+ * @author fussen
+ * Aug 18, 2020 2:15:50 PM
+ */
 public class BeanFactoryAspectJAdvisorsBuilder {
 
+	//Bean工厂
 	private final ListableBeanFactory beanFactory;
-
+	//通知器工厂
 	private final AspectJAdvisorFactory advisorFactory;
-
+	//获取切面类名
 	@Nullable
 	private volatile List<String> aspectBeanNames;
-
+	//以beanName为key,以当前Bean符合切面规则的通知列表的通知集合
 	private final Map<String, List<Advisor>> advisorsCache = new ConcurrentHashMap<>();
 
 	private final Map<String, MetadataAwareAspectInstanceFactory> aspectFactoryCache = new ConcurrentHashMap<>();
@@ -80,7 +86,9 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 	 * @return the list of {@link org.springframework.aop.Advisor} beans
 	 * @see #isEligibleBean
 	 */
+	//在当前的bean工厂中寻找带有aspectj注释的切面bean，然后返回表示这些bean的Spring AOP通知器列表
 	public List<Advisor> buildAspectJAdvisors() {
+		//拿到[demoAspect]
 		List<String> aspectNames = this.aspectBeanNames;
 
 		if (aspectNames == null) {
@@ -88,30 +96,44 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 				aspectNames = this.aspectBeanNames;
 				if (aspectNames == null) {
 					List<Advisor> advisors = new LinkedList<>();
+					//保存切面的名称集合
 					aspectNames = new LinkedList<>();
+					//获取所有的beanName
+					//AOP功能中在这里传入的是Object对象，代表去容器中获取到所有的组件名称，然后
+					//再进行遍历，这个过程十分消耗性能，所以说spring 会在这里加入保存切面信息的缓存
 					String[] beanNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
 							this.beanFactory, Object.class, true, false);
+					//遍历IOC容器中获取所有的Bean名称
 					for (String beanName : beanNames) {
 						if (!isEligibleBean(beanName)) {
 							continue;
 						}
 						// We must be careful not to instantiate beans eagerly as in this case they
 						// would be cached by the Spring container but would not have been weaved.
+						//获取对应bean类型
 						Class<?> beanType = this.beanFactory.getType(beanName);
 						if (beanType == null) {
 							continue;
 						}
+						//提取@Aspect注解标记的class
 						if (this.advisorFactory.isAspect(beanType)) {
+							//切面类加入到缓存中
+							System.out.println(beanName+"---> 为切面类，已加入aspectNames集合中");
 							aspectNames.add(beanName);
 							AspectMetadata amd = new AspectMetadata(beanType, beanName);
 							if (amd.getAjType().getPerClause().getKind() == PerClauseKind.SINGLETON) {
 								MetadataAwareAspectInstanceFactory factory =
 										new BeanFactoryAspectInstanceFactory(this.beanFactory, beanName);
+								//Aspect里面的advice和pointcut被拆分成一个个的advisor	
+								//advisor里面的advice和pointcut是一对一关系
 								List<Advisor> classAdvisors = this.advisorFactory.getAdvisors(factory);
 								if (this.beanFactory.isSingleton(beanName)) {
+									//单例则直接将Advisor类存在缓存中
+									System.out.println(beanName+"---> 为切面类，已加入advisorsCache集合中");
 									this.advisorsCache.put(beanName, classAdvisors);
 								}
 								else {
+									//否则将其对应的工厂缓存
 									this.aspectFactoryCache.put(beanName, factory);
 								}
 								advisors.addAll(classAdvisors);
@@ -140,6 +162,7 @@ public class BeanFactoryAspectJAdvisorsBuilder {
 		}
 		List<Advisor> advisors = new LinkedList<>();
 		for (String aspectName : aspectNames) {
+			//获取到Aspect类里面所有定义的方法，也就是Advisor
 			List<Advisor> cachedAdvisors = this.advisorsCache.get(aspectName);
 			if (cachedAdvisors != null) {
 				advisors.addAll(cachedAdvisors);

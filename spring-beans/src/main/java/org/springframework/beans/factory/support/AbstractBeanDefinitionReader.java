@@ -187,6 +187,7 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 	}
 
 
+	//重载方法
 	@Override
 	public int loadBeanDefinitions(Resource... resources) throws BeanDefinitionStoreException {
 		Assert.notNull(resources, "Resource array must not be null");
@@ -221,6 +222,7 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 	//从指定的资源位置加载bean定义
 	public int loadBeanDefinitions(String location, @Nullable Set<Resource> actualResources) throws BeanDefinitionStoreException {
 		//actualResources = null;
+		//获取在IoC容器初始化过程中设置的资源加载器
 		ResourceLoader resourceLoader = getResourceLoader();
 		if (resourceLoader == null) {
 			throw new BeanDefinitionStoreException(
@@ -230,9 +232,12 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 		if (resourceLoader instanceof ResourcePatternResolver) {
 			// Resource pattern matching available.
 			try {
+				//将指定位置的Bean定义资源文件解析为Spring IOC容器封装的资源
+	            //加载多个指定位置的Bean定义资源文件
 				Resource[] resources = ((ResourcePatternResolver) resourceLoader).getResources(location);
 				//[class path resource [test/applicationContext.xml]]
 				//继续深入方法入口
+				////委派调用其子类XmlBeanDefinitionReader的方法，实现加载功能
 				int count = loadBeanDefinitions(resources);
 				if (actualResources != null) {
 					Collections.addAll(actualResources, resources);
@@ -249,7 +254,10 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 		}
 		else {
 			// Can only load single resources by absolute URL.
+			//将指定位置的Bean定义资源文件解析为Spring IOC容器封装的资源
+	        //加载单个指定位置的Bean定义资源文件
 			Resource resource = resourceLoader.getResource(location);
+			//委派调用其子类XmlBeanDefinitionReader的方法，实现加载功能
 			int count = loadBeanDefinitions(resource);
 			if (actualResources != null) {
 				actualResources.add(resource);

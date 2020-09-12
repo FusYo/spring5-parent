@@ -47,6 +47,7 @@ import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.beans.factory.support.BeanNameGenerator;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.context.annotation.ConfigurationClassEnhancer.EnhancedConfiguration;
@@ -62,7 +63,6 @@ import org.springframework.core.type.classreading.MetadataReaderFactory;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
-
 import static org.springframework.context.annotation.AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR;
 
 /**
@@ -216,13 +216,16 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 	/**
 	 * Derive further bean definitions from the configuration classes in the registry.
 	 */
+	//从注册表中的配置类派生进一步的bean定义
 	@Override
 	public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) {
 		int registryId = System.identityHashCode(registry);
+		//registriesPostProcessed = []
 		if (this.registriesPostProcessed.contains(registryId)) {
 			throw new IllegalStateException(
 					"postProcessBeanDefinitionRegistry already called on this post-processor against " + registry);
 		}
+		//factoriesPostProcessed = []
 		if (this.factoriesPostProcessed.contains(registryId)) {
 			throw new IllegalStateException(
 					"postProcessBeanFactory already called on this post-processor against " + registry);
@@ -261,6 +264,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 	 * Build and validate a configuration model based on the registry of
 	 * {@link Configuration} classes.
 	 */
+	//基于{@link configuration}类的注册表构建和验证配置模型。
 	public void processConfigBeanDefinitions(BeanDefinitionRegistry registry) {
 		//所有被加了注解的bean,都将存储在configCandidates这个集合中
 		List<BeanDefinitionHolder> configCandidates = new ArrayList<>();
@@ -294,6 +298,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 
 		// Sort by previously determined @Order value, if applicable
 		//如果有bean加了@Order注解的,进行排序,没有的默认排序,不是重点
+		//[Bean definition with name 'test': Generic bean: class [com.fs.Test]; scope=singleton; abstract=false; lazyInit=false; autowireMode=0; dependencyCheck=0; autowireCandidate=true; primary=false; factoryBeanName=null; factoryMethodName=null; initMethodName=null; destroyMethodName=null]
 		configCandidates.sort((bd1, bd2) -> {
 			int i1 = ConfigurationClassUtils.getOrder(bd1.getBeanDefinition());
 			int i2 = ConfigurationClassUtils.getOrder(bd2.getBeanDefinition());
@@ -302,11 +307,15 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 
 		// Detect any custom bean name generation strategy supplied through the enclosing application context
 		//不是重点
+		//检测通过封闭的应用程序上下文提供的任何自定义bean名称生成策略
 		SingletonBeanRegistry sbr = null;
 		if (registry instanceof SingletonBeanRegistry) {
 			sbr = (SingletonBeanRegistry) registry;
+			//localBeanNameGeneratorSet = false
 			if (!this.localBeanNameGeneratorSet) {
+				//CONFIGURATION_BEAN_NAME_GENERATOR = "org.springframework.context.annotation.internalConfigurationBeanNameGenerator";
 				BeanNameGenerator generator = (BeanNameGenerator) sbr.getSingleton(CONFIGURATION_BEAN_NAME_GENERATOR);
+				//generator = null
 				if (generator != null) {
 					this.componentScanBeanNameGenerator = generator;
 					this.importBeanNameGenerator = generator;
@@ -324,13 +333,14 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 				this.metadataReaderFactory, this.problemReporter, this.environment,
 				this.resourceLoader, this.componentScanBeanNameGenerator, registry);
 
-         //有创建两个集合,去掉重复的配置类
+        //有创建两个集合,去掉重复的配置类
 		//因为有可能有重复的配置类,Spring内部提供的话是不可能有重复的,但是你提供的话就有可能重复的,你可以一次性提供多个同样的配置类进入
 		Set<BeanDefinitionHolder> candidates = new LinkedHashSet<>(configCandidates);
 		Set<ConfigurationClass> alreadyParsed = new HashSet<>(configCandidates.size());
 		do {
-			//扫描包,其实还有 其他功能的,这是Spring非常核心的功能
-			//此时的candidates中其实就只有一个配置类  parse根据配置类开始扫描带有注解的类
+			//扫描包,其实还有其他功能的,这是Spring非常核心的功能
+			//此时的candidates中其实就只有一个配置类,parse根据配置类开始扫描带有注解的类
+			//重点注意：使用 ApplicationContext context = new AnnotationConfigApplicationContext(Test.class)这种方式，执行下面方法，会将包路径下面的加了注解类注册到IOC容器中
 			parser.parse(candidates);
 			parser.validate();
 			//把读取出来的类实现了 ImportSelector 返回的类集合赋值给 configClasses集合
@@ -345,7 +355,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 						registry, this.sourceExtractor, this.resourceLoader, this.environment,
 						this.importBeanNameGenerator, parser.getImportRegistry());
 			}
-			//在这里把@Import里面的返回的类,放到bean工厂的map集合中
+			//--> 在这里把@Import里面的返回的类,放到bean工厂的map集合中(激活AOP注解中使用了@Import)
 			//configClasses集合添加到bean工厂的map集合中
 			//@Import中填写的类有三种形式
 			//1.ImportSelector 2.ImportBeanDefinitionRegistrar 3.普通类
@@ -354,14 +364,25 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 			//2.实现了ImportBeanDefinitionRegistrar接口的类,里面的beanDefinition也被放到configClasses集合中
 			//3.普通的类也是一样
 			//其实configClasses存储所有的beanDefinition,在这个方法里面还会进行判断
-			//看哪个beanDefinition是实现了mportSelector,哪个类里面是有@Bean的
+			//看哪个beanDefinition是实现了importSelector,哪个类里面是有@Bean的
 			//哪个是 实现ImportBeanDefinitionRegistrar的
+			//[ConfigurationClass: beanName 'test', class path resource [com/fs/Test.class], 
+			//ConfigurationClass: beanName 'demoAspect', class path resource [com/fs/aspect/DemoAspect.class],
+			// ConfigurationClass: beanName 'demoController', class path resource [com/fs/controller/DemoController.class], 
+			//ConfigurationClass: beanName 'userFactoryBean', class path resource [com/fs/factory/UserFactoryBean.class], 
+			//ConfigurationClass: beanName 'customBeanDefinitionRegistryPostProcessor', class path resource [com/fs/processor/CustomBeanDefinitionRegistryPostProcessor.class],
+			// ConfigurationClass: beanName 'customBeanPostProcessor', class path resource [com/fs/processor/CustomBeanPostProcessor.class], 
+			//ConfigurationClass: beanName 'demo1ServiceImpl', class path resource [com/fs/service/impl/Demo1ServiceImpl.class], 
+			//ConfigurationClass: beanName 'demo2ServiceImpl', class path resource [com/fs/service/impl/Demo2ServiceImpl.class], 
+			//ConfigurationClass: beanName 'aopTest', com.fs.AopTest]
 			this.reader.loadBeanDefinitions(configClasses);
 
 			alreadyParsed.addAll(configClasses);
 
 			candidates.clear();
 			if (registry.getBeanDefinitionCount() > candidateNames.length) {
+				//[org.springframework.context.annotation.internalConfigurationAnnotationProcessor, org.springframework.context.annotation.internalAutowiredAnnotationProcessor, org.springframework.context.annotation.internalCommonAnnotationProcessor, org.springframework.context.event.internalEventListenerProcessor, org.springframework.context.event.internalEventListenerFactory, 
+				//test, demoController, userFactoryBean, customBeanDefinitionRegistryPostProcessor, customBeanPostProcessor, demo1ServiceImpl, demo2ServiceImpl]
 				String[] newCandidateNames = registry.getBeanDefinitionNames();
 				Set<String> oldCandidateNames = new HashSet<>(Arrays.asList(candidateNames));
 				Set<String> alreadyParsedClasses = new HashSet<>();
@@ -383,6 +404,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 		while (!candidates.isEmpty());
 
 		// Register the ImportRegistry as a bean in order to support ImportAware @Configuration classes
+		//将ImportRegistry注册为bean，以支持ImportAware @Configuration类
 		if (sbr != null && !sbr.containsSingleton(IMPORT_REGISTRY_BEAN_NAME)) {
 			sbr.registerSingleton(IMPORT_REGISTRY_BEAN_NAME, parser.getImportRegistry());
 		}
@@ -390,6 +412,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 		if (this.metadataReaderFactory instanceof CachingMetadataReaderFactory) {
 			// Clear cache in externally provided MetadataReaderFactory; this is a no-op
 			// for a shared cache since it'll be cleared by the ApplicationContext.
+			//清除外部提供的MetadataReaderFactory中的缓存;这是一个共享缓存的无操作，因为它将被ApplicationContext清除
 			((CachingMetadataReaderFactory) this.metadataReaderFactory).clearCache();
 		}
 	}

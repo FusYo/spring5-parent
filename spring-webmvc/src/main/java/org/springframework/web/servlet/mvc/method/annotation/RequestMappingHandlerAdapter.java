@@ -559,17 +559,22 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	@Override
 	public void afterPropertiesSet() {
 		// Do this first, it may add ResponseBody advice beans
+		//首先这样做，它可能会添加ResponseBody通知bean
+		//完成ControllerAdvice注解相关初始化
 		initControllerAdviceCache();
 
 		if (this.argumentResolvers == null) {
+			//初始化SpringMVC默认的方法参数解析器，并添加至argumentResolvers（HandlerMethodArgumentResolverComposite）
 			List<HandlerMethodArgumentResolver> resolvers = getDefaultArgumentResolvers();
 			this.argumentResolvers = new HandlerMethodArgumentResolverComposite().addResolvers(resolvers);
 		}
 		if (this.initBinderArgumentResolvers == null) {
+			//初始化SpringMVC默认的初始化绑定器(@InitBinder)参数解析器，并添加至initBinderArgumentResolvers（HandlerMethodArgumentResolverComposite）
 			List<HandlerMethodArgumentResolver> resolvers = getDefaultInitBinderArgumentResolvers();
 			this.initBinderArgumentResolvers = new HandlerMethodArgumentResolverComposite().addResolvers(resolvers);
 		}
 		if (this.returnValueHandlers == null) {
+			 //获取默认的方法返回值解析器
 			List<HandlerMethodReturnValueHandler> handlers = getDefaultReturnValueHandlers();
 			this.returnValueHandlers = new HandlerMethodReturnValueHandlerComposite().addHandlers(handlers);
 		}
@@ -635,13 +640,20 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	 * Return the list of argument resolvers to use including built-in resolvers
 	 * and custom resolvers provided via {@link #setCustomArgumentResolvers}.
 	 */
+	//默认的参数解析，创建了默认的24个参数解析器，并添加至resolvers
+	//这里的24个参数解析器都是针对不同的参数类型来解析的
 	private List<HandlerMethodArgumentResolver> getDefaultArgumentResolvers() {
 		List<HandlerMethodArgumentResolver> resolvers = new ArrayList<>();
-
+		// 基于注解的参数解析器
 		// Annotation-based argument resolution
+		//一般用于带有@RequestParam注解的简单参数绑定，简单参数比如byte、int、long、double、String以及对应的包装类型
 		resolvers.add(new RequestParamMethodArgumentResolver(getBeanFactory(), false));
+		//用于处理带有@RequestParam注解，且参数类型为Map的解析绑定
 		resolvers.add(new RequestParamMapMethodArgumentResolver());
+		//一般用于处理带有@PathVariable注解的默认参数绑定
 		resolvers.add(new PathVariableMethodArgumentResolver());
+		//也是用于带有@PathVariable注解的Map相关参数绑定，后续还有一些默认的参数解析器。后续还有一些参数解析器。想具体确认某个参数会交个哪个参数解析器处理，
+		//可以通过以下解析器的supportsParameter(MethodParameter parameter)方法得知
 		resolvers.add(new PathVariableMapMethodArgumentResolver());
 		resolvers.add(new MatrixVariableMethodArgumentResolver());
 		resolvers.add(new MatrixVariableMapMethodArgumentResolver());
@@ -656,6 +668,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		resolvers.add(new RequestAttributeMethodArgumentResolver());
 
 		// Type-based argument resolution
+		// 基于类型的参数解析器
 		resolvers.add(new ServletRequestMethodArgumentResolver());
 		resolvers.add(new ServletResponseMethodArgumentResolver());
 		resolvers.add(new HttpEntityMethodProcessor(getMessageConverters(), this.requestResponseBodyAdvice));
@@ -717,7 +730,6 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	 */
 	private List<HandlerMethodReturnValueHandler> getDefaultReturnValueHandlers() {
 		List<HandlerMethodReturnValueHandler> handlers = new ArrayList<>();
-
 		// Single-purpose return value types
 		handlers.add(new ModelAndViewMethodReturnValueHandler());
 		handlers.add(new ModelMethodProcessor());
@@ -778,8 +790,9 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		ModelAndView mav;
 		checkRequest(request);
 
-		//如果需要，在同步块中执行InvokehandlerMethod。
+		// 如果需要，在同步块中执行InvokehandlerMethod。
 		// Execute invokeHandlerMethod in synchronized block if required.
+		// false
 		if (this.synchronizeOnSession) {
 			HttpSession session = request.getSession(false);
 			if (session != null) {
@@ -795,10 +808,10 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 			}
 		}
 		else {
-			//根本不要求会话上的同步。
 			// No synchronization on session demanded at all...
+			//根本不要求会话上的同步
 			//尝试获取ModelAndView对象,如果没有HTML,则获取不到视图
-			//这个方法里面执行了controller的内容
+			//---> 这个方法里面执行了controller的内容
 			mav = invokeHandlerMethod(request, response, handlerMethod);
 		}
 
@@ -850,6 +863,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	 * @since 4.2
 	 * @see #createInvocableHandlerMethod(HandlerMethod)
 	 */
+	//如果需要视图解析，调用{@link RequestMapping}处理程序方法准备{@link ModelAndView}
 	@Nullable
 	protected ModelAndView invokeHandlerMethod(HttpServletRequest request,
 			HttpServletResponse response, HandlerMethod handlerMethod) throws Exception {
@@ -858,7 +872,10 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		try {
 			WebDataBinderFactory binderFactory = getDataBinderFactory(handlerMethod);
 			ModelFactory modelFactory = getModelFactory(handlerMethod, binderFactory);
-
+			// 创建可以调用的处理器包装类
+			//public java.lang.String com.fs.controller.DemoController.hello()
+			//根据handlerMethod和binderFactory创建一个ServletInvocableHandlerMethod。后续把请求直接交给ServletInvocableHandlerMethod执行。
+		    //createRequestMappingMethod方法比较简单，把之前RequestMappingHandlerAdapter初始化的argumentResolvers和returnValueHandlers添加至ServletInvocableHandlerMethod中
 			ServletInvocableHandlerMethod invocableMethod = createInvocableHandlerMethod(handlerMethod);
 			if (this.argumentResolvers != null) {
 				invocableMethod.setHandlerMethodArgumentResolvers(this.argumentResolvers);
@@ -868,12 +885,12 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 			}
 			invocableMethod.setDataBinderFactory(binderFactory);
 			invocableMethod.setParameterNameDiscoverer(this.parameterNameDiscoverer);
-
+			//ModelAndViewContainer: View is [null]; default model {}
 			ModelAndViewContainer mavContainer = new ModelAndViewContainer();
 			mavContainer.addAllAttributes(RequestContextUtils.getInputFlashMap(request));
 			modelFactory.initModel(webRequest, mavContainer, invocableMethod);
 			mavContainer.setIgnoreDefaultModelOnRedirect(this.ignoreDefaultModelOnRedirect);
-
+			//ServletWebRequest: uri=/demo/hello;client=0:0:0:0:0:0:0:1
 			AsyncWebRequest asyncWebRequest = WebAsyncUtils.createAsyncWebRequest(request, response);
 			asyncWebRequest.setTimeout(this.asyncRequestTimeout);
 
@@ -882,7 +899,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 			asyncManager.setAsyncWebRequest(asyncWebRequest);
 			asyncManager.registerCallableInterceptors(this.callableInterceptors);
 			asyncManager.registerDeferredResultInterceptors(this.deferredResultInterceptors);
-
+			//false
 			if (asyncManager.hasConcurrentResult()) {
 				Object result = asyncManager.getConcurrentResult();
 				mavContainer = (ModelAndViewContainer) asyncManager.getConcurrentResultContext()[0];
@@ -893,7 +910,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 				});
 				invocableMethod = invocableMethod.wrapConcurrentResult(result);
 			}
-           //这个方法执行了controller的内容
+            //这个方法执行了controller的方法
 			invocableMethod.invokeAndHandle(webRequest, mavContainer);
 			if (asyncManager.isConcurrentHandlingStarted()) {
 				return null;

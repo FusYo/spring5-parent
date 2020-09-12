@@ -640,6 +640,21 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 		try {
 			ReflectionUtils.makeAccessible(this.aspectJAdviceMethod);
 			// TODO AopUtils.invokeJoinpointUsingReflection
+			//TODO:自增代码
+			if(this.aspectJAdviceMethod.getName().equals("before")) {
+				//public void com.fs.aspect.DemoAspect.before(org.aspectj.lang.JoinPoint)
+				System.out.println("========== invokeAdviceMethod()方法：开始执行before通知方法");
+			}
+			if(this.aspectJAdviceMethod.getName().equals("after")) {
+				System.out.println("========== invokeAdviceMethod()方法：开始执行after通知方法");
+			}
+			if(this.aspectJAdviceMethod.getName().equals("around")) {
+				//public java.lang.Object com.fs.aspect.DemoAspect.around(org.aspectj.lang.JoinPoint)
+				System.out.println("========== invokeAdviceMethod()方法：开始执行around通知方法");
+			}
+			if(this.aspectJAdviceMethod.getName().equals("afterReturning")) {
+				System.out.println("========== invokeAdviceMethod()方法：开始执行afterReturning通知方法");
+			}
 			return this.aspectJAdviceMethod.invoke(this.aspectInstanceFactory.getAspectInstance(), actualArgs);
 		}
 		catch (IllegalArgumentException ex) {
@@ -662,6 +677,7 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
 	/**
 	 * Get the current join point match at the join point we are being dispatched on.
 	 */
+	//获取正在分派我们的连接点上的当前连接点匹配
 	@Nullable
 	protected JoinPointMatch getJoinPointMatch() {
 		MethodInvocation mi = ExposeInvocationInterceptor.currentInvocation();

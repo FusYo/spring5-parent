@@ -31,7 +31,7 @@ import org.springframework.util.Assert;
  */
 @SuppressWarnings("serial")
 public class ProxyCreatorSupport extends AdvisedSupport {
-
+	//定义代理工厂对象属性​
 	private AopProxyFactory aopProxyFactory;
 
 	private List<AdvisedSupportListener> listeners = new LinkedList<>();
@@ -43,7 +43,9 @@ public class ProxyCreatorSupport extends AdvisedSupport {
 	/**
 	 * Create a new ProxyCreatorSupport instance.
 	 */
+	//创建一个新的ProxyCreatorSupport实例
 	public ProxyCreatorSupport() {
+		//new一个AopProxyFactory对象
 		this.aopProxyFactory = new DefaultAopProxyFactory();
 	}
 
@@ -71,6 +73,7 @@ public class ProxyCreatorSupport extends AdvisedSupport {
 	/**
 	 * Return the AopProxyFactory that this ProxyConfig uses.
 	 */
+	//返回这个ProxyConfig使用的AopProxyFactory
 	public AopProxyFactory getAopProxyFactory() {
 		return this.aopProxyFactory;
 	}
@@ -99,9 +102,11 @@ public class ProxyCreatorSupport extends AdvisedSupport {
 	 * create an AOP proxy with {@code this} as an argument.
 	 */
 	protected final synchronized AopProxy createAopProxy() {
+		//激活监听器
 		if (!this.active) {
 			activate();
 		}
+		//传递ProxyCreatorSupport对象为参数
 		return getAopProxyFactory().createAopProxy(this);
 	}
 

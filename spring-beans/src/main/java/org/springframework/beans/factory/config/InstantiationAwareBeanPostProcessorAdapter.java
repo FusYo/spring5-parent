@@ -54,6 +54,7 @@ public abstract class InstantiationAwareBeanPostProcessorAdapter implements Smar
 
 	@Override
 	public Object getEarlyBeanReference(Object bean, String beanName) throws BeansException {
+		System.out.println(beanName+" ---------》InstantiationAwareBeanPostProcessorAdapter进入获取普通对象的方法逻辑。。。。");
 		return bean;
 	}
 

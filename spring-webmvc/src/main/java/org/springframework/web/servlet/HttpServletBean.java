@@ -78,6 +78,11 @@ import org.springframework.web.context.support.StandardServletEnvironment;
  * @see #doGet
  * @see #doPost
  */
+/**
+ * HttpServlet的简单扩展
+ * @author fussen
+ * Sep 1, 2020 2:59:32 PM
+ */
 @SuppressWarnings("serial")
 public abstract class HttpServletBean extends HttpServlet implements EnvironmentCapable, EnvironmentAware {
 
@@ -99,6 +104,7 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 	 * driven by a ServletConfig instance.
 	 * @param property name of the required property
 	 */
+	//子类可以调用此方法来指定此属性(必须与它们公开的JavaBean属性匹配)是强制性的，并且必须作为配置参数提供。这应该从子类的构造函数调用
 	protected final void addRequiredProperty(String property) {
 		this.requiredProperties.add(property);
 	}
@@ -110,6 +116,7 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 	 * @throws IllegalArgumentException if environment is not assignable to
 	 * {@code ConfigurableEnvironment}
 	 */
+	//设置这个servlet运行的环境
 	@Override
 	public void setEnvironment(Environment environment) {
 		Assert.isInstanceOf(ConfigurableEnvironment.class, environment, "ConfigurableEnvironment required");
@@ -121,6 +128,7 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 	 * <p>If none specified, a default environment will be initialized via
 	 * {@link #createEnvironment()}.
 	 */
+	//返回与此servlet关联的环境
 	@Override
 	public ConfigurableEnvironment getEnvironment() {
 		if (this.environment == null) {
@@ -134,6 +142,7 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 	 * <p>Subclasses may override this in order to configure the environment or
 	 * specialize the environment type returned.
 	 */
+	//创建并返回一个新的StandardServletEnvironment
 	protected ConfigurableEnvironment createEnvironment() {
 		return new StandardServletEnvironment();
 	}
@@ -144,9 +153,15 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 	 * @throws ServletException if bean properties are invalid (or required
 	 * properties are missing), or if subclass initialization fails.
 	 */
+	// 将配置参数映射到这个servlet的bean属性上，并调用子类初始化
+	// DispatcherServlet的父类初始化方法
 	@Override
 	public final void init() throws ServletException {
-
+		System.out.println();
+		System.out.println();
+		System.out.println("===================== 开始进入HttpServlet的init()方法 ===================== ");
+		System.out.println();
+		System.out.println();
 		// Set bean properties from init parameters.
 		PropertyValues pvs = new ServletConfigPropertyValues(getServletConfig(), this.requiredProperties);
 		if (!pvs.isEmpty()) {
@@ -167,6 +182,7 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 
 		// Let subclasses do whatever initialization they like.
 		//点击这里
+		//让子类做它们喜欢的任何初始化
 		initServletBean();
 	}
 
@@ -178,6 +194,7 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 	 * @throws BeansException if thrown by BeanWrapper methods
 	 * @see org.springframework.beans.BeanWrapper#registerCustomEditor
 	 */
+	//为这个HttpServletBean初始化BeanWrapper，可能使用自定义编辑器
 	protected void initBeanWrapper(BeanWrapper bw) throws BeansException {
 	}
 
@@ -188,6 +205,7 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 	 * <p>This default implementation is empty.
 	 * @throws ServletException if subclass initialization fails
 	 */
+	//子类可以重写它来执行自定义初始化。这个servlet的所有bean属性都将在调用这个方法之前设置好
 	protected void initServletBean() throws ServletException {
 	}
 
@@ -196,6 +214,7 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 	 * ServletConfig set yet.
 	 * @see #getServletConfig()
 	 */
+	// 重写的方法，该方法在没有设置ServletConfig时，仅返回null
 	@Override
 	@Nullable
 	public String getServletName() {
@@ -206,6 +225,7 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 	/**
 	 * PropertyValues implementation created from ServletConfig init parameters.
 	 */
+	// 从ServletConfig init参数创建的PropertyValues实现
 	private static class ServletConfigPropertyValues extends MutablePropertyValues {
 
 		/**

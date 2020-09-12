@@ -108,6 +108,24 @@ import org.springframework.util.ReflectionUtils;
  * @see #onStartup(Set, ServletContext)
  * @see WebApplicationInitializer
  */
+/**
+ * 这个类将被加载和实例化,其 onStartup(java.util.Set<java.lang.Class<?>>, javax.servlet.ServletContext)方法在任何Servlet 3.0兼容的容器在容器启动时被调用，
+ * 当JAR的spring-web模块存在的classpath中。在当JAR服务APIServiceLoader.load(Class)方法检测spring-web模块的META-INF/services/javax.servlet.ServletContainerInitializer`服务提供者配置文件时发生
+ * @author fussen
+ * Sep 3, 2020 9:50:24 PM
+ */
+/*
+ * 在web项目运行的时候，SpringServletContainerInitializer这个类又是怎样被调用的呢?
+ * ServletContainerInitializer接口是在javax.servlet下
+ * 含义：为了支持可以不使用web.xml，提供了ServletContainerInitializer
+ *      当启动web容器的时候，会自动到当前jar包(spring-web模块)下的META-INF/services目录下以ServletContainerInitializer的全路径名称命名的文件，
+ *      它的内容为ServletContainerInitializer实现类（也即是SpringServletContainerInitializer）的全路径，通过SPI机制，进行实例化
+ *      
+ *      因此：SpringServletContainerInitializer作为ServletContainerInitializer的实现类，通过SPI机制，在web容器加载的时候会自动的被调用
+ *           而这个类的方法又会扫描找到WebApplicationInitializer的实现类，调用它的onStartup方法，从而起到启动web.xml相同的作用
+ * 
+ */
+//@HandlesTypes: 将感兴趣的一些类注入到ServletContainerInitializerde
 @HandlesTypes(WebApplicationInitializer.class)
 public class SpringServletContainerInitializer implements ServletContainerInitializer {
 
@@ -142,14 +160,23 @@ public class SpringServletContainerInitializer implements ServletContainerInitia
 			throws ServletException {
 
 		List<WebApplicationInitializer> initializers = new LinkedList<>();
-
+		//先判断webAppInitializerClasses这个Set是否为空
 		if (webAppInitializerClasses != null) {
+			// [class org.springframework.web.server.adapter.AbstractReactiveWebInitializer, 
+			// class org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer, 
+			// class com.fs.WebDispatcherServletInitializer, 
+			// class org.springframework.web.context.AbstractContextLoaderInitializer,
+			// class org.springframework.web.servlet.support.AbstractDispatcherServletInitializer]
 			for (Class<?> waiClass : webAppInitializerClasses) {
 				// Be defensive: Some servlet containers provide us with invalid classes,
 				// no matter what @HandlesTypes says...
+				//如果不为空的话，找到这个set中不是接口，不是抽象类，并且是WebApplicationInitializer接口实现类的类，将它们保存到list中
 				if (!waiClass.isInterface() && !Modifier.isAbstract(waiClass.getModifiers()) &&
 						WebApplicationInitializer.class.isAssignableFrom(waiClass)) {
 					try {
+						//这里会将我们自己实现的初始化加载类放到List集合中
+						//这里，就可以解释WebApplicationInitializer实现类实例化的过程
+						System.out.println("SpringServletContainerInitializer--> onStartup()方法中：实现了WebApplicationInitializer接口的类为--"+waiClass.getName());
 						initializers.add((WebApplicationInitializer)
 								ReflectionUtils.accessibleConstructor(waiClass).newInstance());
 					}
@@ -166,7 +193,13 @@ public class SpringServletContainerInitializer implements ServletContainerInitia
 		}
 
 		servletContext.log(initializers.size() + " Spring WebApplicationInitializers detected on classpath");
+		System.out.println();
+		System.out.println();
+		System.out.println("在类路径上检测到Spring WebApplicationInitializers.....");
+		System.out.println();
+		System.out.println();
 		AnnotationAwareOrderComparator.sort(initializers);
+		//[com.fs.WebDispatcherServletInitializer@451de31f]
 		for (WebApplicationInitializer initializer : initializers) {
 			initializer.onStartup(servletContext);
 		}

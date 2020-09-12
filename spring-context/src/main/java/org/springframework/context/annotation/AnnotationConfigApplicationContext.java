@@ -66,8 +66,9 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 * Create a new AnnotationConfigApplicationContext that needs to be populated
 	 * through {@link #register} calls and then manually {@linkplain #refresh refreshed}.
 	 */
+	//创建一个新的注释configapplicationcontext，它需要通过{@link #register}调用来填充，然后手动{@linkplain #refresh refresh}
 	public AnnotationConfigApplicationContext() {
-		//创建一个读取被加了注解的bean读取器  ,当前对象传过去
+		//创建一个读取被加了注解的bean读取器 ,当前对象传过去---BeanDefinitionRegistry
 		this.reader = new AnnotatedBeanDefinitionReader(this);
 		/**
 		 * 可以用来扫描包来转换成beanDefinition
@@ -93,15 +94,16 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 * from the given annotated classes and automatically refreshing the context.
 	 * @param annotatedClasses one or more annotated classes,
 	 * e.g. {@link Configuration @Configuration} classes
-	 *  这是最常用的方法,主要作用是通过传递配置类的class字节码,扫描相应的类,然后注册bean对象到工厂中
+	 * 
 	 */
+	// 这是最常用的方法,主要作用是通过传递配置类的class字节码,扫描相应的类,然后注册bean对象到工厂中
 	public AnnotationConfigApplicationContext(Class<?>... annotatedClasses) {
-		//这个类有父类,所以会先初始化父类的构造方法,接着初始化自己的构造方法
+		//这个类有父类,所以会先初始化父类的构造方法(实例化了DefaultListableBeanFactory),接着初始化自己的构造方法
 		//调用无参构造方法进行初始化一个读取器和扫描仪
 		this();
-		//把配置类加载进 DefaultListableBeanFactory 的map集合中
-		//配置类可以一次性传多个,这个方法执行后,只是把配置类加载进了 DefaultListAbleBeanFactory的map集合中
-		//还没有扫描其他的的加了组件的类
+		
+		//配置类可以一次性传多个,这个方法执行后,只是把配置类加载进了 DefaultListAbleBeanFactory的map集合（IOC容器）中
+		//还没有扫描其他的的加了组件的类（普通的业务类）
 		register(annotatedClasses);
 		//实例化所有被加了组件的对象
 		refresh();
@@ -112,6 +114,7 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 * in the given packages and automatically refreshing the context.
 	 * @param basePackages the packages to check for annotated classes
 	 */
+	//创建一个新的AnnotationConfigApplicationContext，扫描给定包中的bean定义，并自动刷新上下文
 	public AnnotationConfigApplicationContext(String... basePackages) {
 		this();
 		scan(basePackages);
@@ -170,10 +173,11 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 * e.g. {@link Configuration @Configuration} classes
 	 * @see #scan(String...)
 	 * @see #refresh()
-	 * 两个作用:
-	 * 1. 可以注册一个配置类
-	 * 2.还可以单独注册一个bean
+	 * 
 	 */
+	//两个作用:
+	//1.可以注册一个配置类
+	//2.还可以单独注册一个bean
 	public void register(Class<?>... annotatedClasses) {
 		Assert.notEmpty(annotatedClasses, "At least one annotated class must be specified");
 		this.reader.register(annotatedClasses);
@@ -187,6 +191,7 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 * @see #register(Class...)
 	 * @see #refresh()
 	 */
+	//在指定的基本包内执行扫描
 	public void scan(String... basePackages) {
 		Assert.notEmpty(basePackages, "At least one base package must be specified");
 		this.scanner.scan(basePackages);

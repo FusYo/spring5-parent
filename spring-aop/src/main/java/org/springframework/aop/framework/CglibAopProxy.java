@@ -80,6 +80,16 @@ import org.springframework.util.ObjectUtils;
  * @see AdvisedSupport#setProxyTargetClass
  * @see DefaultAopProxyFactory
  */
+
+//基于类的代理，具体实现为通过创建目标类的子类来实现代理，即代理对象对应的类为目标类的子类。
+//所以目标类的需要被代理的方法不能为final，因为子类无法重写final的方法；同时被代理的方法需要是public或者protected，不能是static，private或者包可见，即不加可见修饰符。
+//如在事务中，@Transactional注解不能对private，static，final，包可见的方法添加事务功能，只能为public方法。
+//这个代理对象也需要通过代理工厂来创建，具体为继承了AdvisedSupport的代理工厂来创建，而不是直接创建。
+/**
+ * 
+ * @author fussen
+ * Aug 21, 2020 8:15:54 PM
+ */
 @SuppressWarnings("serial")
 class CglibAopProxy implements AopProxy, Serializable {
 
@@ -101,6 +111,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 
 
 	/** The configuration used to configure this proxy */
+	//用于配置此代理的配置
 	protected final AdvisedSupport advised;
 
 	@Nullable
@@ -110,6 +121,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 	protected Class<?>[] constructorArgTypes;
 
 	/** Dispatcher used for methods on Advised */
+	//用于被建议的方法的调度程序
 	private final transient AdvisedDispatcher advisedDispatcher;
 
 	private transient Map<String, Integer> fixedInterceptorMap = Collections.emptyMap();
@@ -123,6 +135,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 	 * @throws AopConfigException if the config is invalid. We try to throw an informative
 	 * exception in this case, rather than let a mysterious failure happen later.
 	 */
+	//为给定的AOP配置创建一个新的CglibAopProxy
 	public CglibAopProxy(AdvisedSupport config) throws AopConfigException {
 		Assert.notNull(config, "AdvisedSupport must not be null");
 		if (config.getAdvisors().length == 0 && config.getTargetSource() == AdvisedSupport.EMPTY_TARGET_SOURCE) {
@@ -155,6 +168,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 		return getProxy(null);
 	}
 
+	//创建代理对象
 	@Override
 	public Object getProxy(@Nullable ClassLoader classLoader) {
 		if (logger.isDebugEnabled()) {
@@ -175,6 +189,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 			}
 
 			// Validate the class, writing log messages as necessary.
+			// 创建目标类的子类来实现代理，即织入辅助功能
 			validateClassIfNecessary(proxySuperClass, classLoader);
 
 			// Configure CGLIB Enhancer...
@@ -202,6 +217,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 			enhancer.setCallbackTypes(types);
 
 			// Generate the proxy class and create a proxy instance.
+			// 创建代理对象
 			return createProxyClassAndInstance(enhancer, callbacks);
 		}
 		catch (CodeGenerationException | IllegalArgumentException ex) {
@@ -662,8 +678,10 @@ class CglibAopProxy implements AopProxy, Serializable {
 			Object oldProxy = null;
 			boolean setProxyContext = false;
 			Object target = null;
+			//通过TargetSource获取目标对象
 			TargetSource targetSource = this.advised.getTargetSource();
 			try {
+				//判断如果需要暴露代理对象，则将当前代理对象设置到ThreadLoacal中
 				if (this.advised.exposeProxy) {
 					// Make invocation available if necessary.
 					oldProxy = AopContext.setCurrentProxy(proxy);
@@ -672,6 +690,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 				// Get as late as possible to minimize the time we "own" the target, in case it comes from a pool...
 				target = targetSource.getTarget();
 				Class<?> targetClass = (target != null ? target.getClass() : null);
+				//获取目标对象切面逻辑的环绕链
 				List<Object> chain = this.advised.getInterceptorsAndDynamicInterceptionAdvice(method, targetClass);
 				Object retVal;
 				// Check whether we only have one InvokerInterceptor: that is,
@@ -681,20 +700,29 @@ class CglibAopProxy implements AopProxy, Serializable {
 					// Note that the final invoker must be an InvokerInterceptor, so we know
 					// it does nothing but a reflective operation on the target, and no hot
 					// swapping or fancy proxying.
+					//对参数进行处理，以使其和目标方法的参数类型一致，尤其对于数组类型
+					//会单独处理其数据类型与实际类型一致
 					Object[] argsToUse = AopProxyUtils.adaptArgumentsIfNecessary(method, args);
+					//因为没有切面逻辑需要织入，这里直接调用目标方法
 					retVal = methodProxy.invoke(target, argsToUse);
 				}
 				else {
 					// We need to create a method invocation...
+					//通过生成的调用链，对目标方法进行环绕调用
 					retVal = new CglibMethodInvocation(proxy, target, method, args, targetClass, chain, methodProxy).proceed();
 				}
+				//对返回值进行处理，如果返回值就是当前目标对象，那么将代理生成的代理对象返回
+				//如果返回值为空，并且返回值类型是非void的基本数据类型，则抛出异常
+				//如果上述两个条件都不符合，则直接将生成的返回值返回
 				retVal = processReturnType(proxy, target, method, retVal);
 				return retVal;
 			}
 			finally {
+				//如果目标对象不是静态的，则调用targetSource.releaseTarget()方法释放目标对象
 				if (target != null && !targetSource.isStatic()) {
 					targetSource.releaseTarget(target);
 				}
+				//将代理对象设置为外层逻辑调用设置的对象，以防止暴露出来的代理对象不一致
 				if (setProxyContext) {
 					// Restore old proxy.
 					AopContext.setCurrentProxy(oldProxy);

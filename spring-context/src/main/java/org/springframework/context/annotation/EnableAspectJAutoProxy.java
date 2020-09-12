@@ -116,6 +116,11 @@ import java.lang.annotation.Target;
  * @since 3.1
  * @see org.aspectj.lang.annotation.Aspect
  */
+/**
+ * 支持处理用AspectJ的{@code @Aspect}注释标记的组件，类似于Spring的{@code <aop: AspectJ -autoproxy>} XML元素中的功能
+ * @author fussen
+ * Aug 13, 2020 10:40:17 AM
+ */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
@@ -126,6 +131,8 @@ public @interface EnableAspectJAutoProxy {
 	 * Indicate whether subclass-based (CGLIB) proxies are to be created as opposed
 	 * to standard Java interface-based proxies. The default is {@code false}.
 	 */
+	//表明该类采用CGLIB代理还是使用JDK动态代理
+	//true：使用CGLIB
 	boolean proxyTargetClass() default false;
 
 	/**
@@ -134,6 +141,9 @@ public @interface EnableAspectJAutoProxy {
 	 * Off by default, i.e. no guarantees that {@code AopContext} access will work.
 	 * @since 4.3.1
 	 */
+	//解决内部调用不能使用代理的场景，默认为false表示不处理
+	//true表示代理对象的副本就可以通过AopContext.currentProxy()获得(ThreadLocal里面)
+	//从而很方便的在spring框架上下文中拿到当前代理对象(处理事务时很方便)
 	boolean exposeProxy() default false;
 
 }

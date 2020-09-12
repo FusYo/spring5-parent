@@ -1078,8 +1078,19 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	 * Checks for existence of a method with the specified name.
 	 * @throws BeanDefinitionValidationException in case of validation failure
 	 */
+	//验证并准备为这个bean定义的方法覆盖。检查是否存在具有指定名称的方法
+	/**
+	 * <bean id="a" class="com.fs.a" >
+	 *    <lookup-method name="getUserBean" bean="teacher" />
+	 * 	  <replaced-method name="changeMethod" replacer="replacer" />
+	 * </bean>
+	 * <bean id="teacher" class="com.fs.teacher" />
+	 * <bean id="student" class="com.fs.student" />
+	 * <bean id="replacer" class="com.fs.replacer" />
+	 */
 	public void prepareMethodOverrides() throws BeanDefinitionValidationException {
 		// Check that lookup methods exists.
+		//检查查找方法是否存在
 		if (hasMethodOverrides()) {
 			Set<MethodOverride> overrides = getMethodOverrides().getOverrides();
 			synchronized (overrides) {
@@ -1106,6 +1117,8 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 		}
 		else if (count == 1) {
 			// Mark override as not overloaded, to avoid the overhead of arg type checking.
+			//如果不存在重载，在使用CGLIB增强阶段就不需要进行校验
+			//直接找到某个方法进行增强即可，否则在增强阶段还需要做特殊处理
 			mo.setOverloaded(false);
 		}
 	}

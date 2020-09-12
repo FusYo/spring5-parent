@@ -35,6 +35,11 @@ package org.springframework.beans.factory;
  * @see BeanFactoryAware
  * @see InitializingBean
  */
+/**
+ * 允许bean知道bean {@link ClassLoader class loader}的回调函数;也就是说，当前bean工厂用来装入bean类的类装入器
+ * @author fussen
+ * Aug 18, 2020 11:00:19 AM
+ */
 public interface BeanClassLoaderAware extends Aware {
 
 	/**
@@ -47,6 +52,7 @@ public interface BeanClassLoaderAware extends Aware {
 	 * method or a custom init-method.
 	 * @param classLoader the owning class loader
 	 */
+	//向bean实例提供bean {@link ClassLoader class loader}的回调
 	void setBeanClassLoader(ClassLoader classLoader);
 
 }

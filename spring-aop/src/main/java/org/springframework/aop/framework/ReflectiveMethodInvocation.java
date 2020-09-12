@@ -158,17 +158,26 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 	@Nullable
 	public Object proceed() throws Throwable {
 		//	We start with an index of -1 and increment early.
-		//如果Interceptor执行完了，则执行joinPoint
+		//如果Interceptor（封装了的Advice）执行完了，则执行joinPoint
+		//[org.springframework.aop.interceptor.ExposeInvocationInterceptor@2c532cd8, 
+		//org.springframework.aop.aspectj.AspectJAfterAdvice: advice method [public void com.fs.aspect.DemoAspect.after(org.aspectj.lang.JoinPoint)]; 
+		//aspect name 'demoAspect', org.springframework.aop.aspectj.AspectJAroundAdvice: advice method [public java.lang.Object com.fs.aspect.DemoAspect.around(org.aspectj.lang.JoinPoint)]; 
+		//aspect name 'demoAspect', org.springframework.aop.framework.adapter.MethodBeforeAdviceInterceptor@294e5088]
+		//每次都会判断是否已经到达最后一个拦截器
+		//currentInterceptorIndex初始值为-1
 		if (this.currentInterceptorIndex == this.interceptorsAndDynamicMethodMatchers.size() - 1) {
+			//最后一个拦截器执行完，执行目标方法
 			return invokeJoinpoint();
 		}
-
+		//获取下一个拦截器
 		Object interceptorOrInterceptionAdvice =
 				this.interceptorsAndDynamicMethodMatchers.get(++this.currentInterceptorIndex);
+		System.out.println("ReflectiveMethodInvocation.proceed():当前执行的拦截器为---》"+interceptorOrInterceptionAdvice.toString());
 		//如果要动态匹配joinPoint
 		if (interceptorOrInterceptionAdvice instanceof InterceptorAndDynamicMethodMatcher) {
 			// Evaluate dynamic method matcher here: static part will already have
 			// been evaluated and found to match.
+			//动态匹配
 			InterceptorAndDynamicMethodMatcher dm =
 					(InterceptorAndDynamicMethodMatcher) interceptorOrInterceptionAdvice;
 			//动态匹配：运行时参数是否满足匹配条件
@@ -186,6 +195,7 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 			// It's an interceptor, so we just invoke it: The pointcut will have
 			// been evaluated statically before this object was constructed.
 			//执行当前Intercetpor
+			//比如：MethodBeforeAdviceInterceptor、AfterReturningAdviceInterceptor、ThrowsAdviceInterceptor
 			return ((MethodInterceptor) interceptorOrInterceptionAdvice).invoke(this);
 		}
 	}
@@ -196,8 +206,10 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
 	 * @return the return value of the joinpoint
 	 * @throws Throwable if invoking the joinpoint resulted in an exception
 	 */
+	//使用反射调用连接点。子类可以覆盖此内容以使用自定义调用
 	@Nullable
 	protected Object invokeJoinpoint() throws Throwable {
+		System.out.println("=========开始执行目标方法了=========");
 		return AopUtils.invokeJoinpointUsingReflection(this.target, this.method, this.arguments);
 	}
 

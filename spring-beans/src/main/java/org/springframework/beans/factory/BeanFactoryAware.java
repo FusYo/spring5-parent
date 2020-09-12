@@ -38,6 +38,12 @@ import org.springframework.beans.BeansException;
  * @see InitializingBean
  * @see org.springframework.context.ApplicationContextAware
  */
+/**
+ * 要由希望知道自己拥有的{@link BeanFactory}的bean实现的接口
+ * 可以从容器中获取 BeanFactory 对象
+ * @author fussen
+ * Aug 18, 2020 10:56:14 AM
+ */
 public interface BeanFactoryAware extends Aware {
 
 	/**
@@ -50,6 +56,7 @@ public interface BeanFactoryAware extends Aware {
 	 * @throws BeansException in case of initialization errors
 	 * @see BeanInitializationException
 	 */
+	//为bean实例提供所属工厂的回调函数
 	void setBeanFactory(BeanFactory beanFactory) throws BeansException;
 
 }

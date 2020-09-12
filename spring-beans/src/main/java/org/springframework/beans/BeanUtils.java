@@ -169,7 +169,8 @@ public abstract class BeanUtils {
 		try {
 			//设置默认构造方法可用
 			ReflectionUtils.makeAccessible(ctor);
-			//放射创建对象
+			System.out.println("======= BeanUtils.instantiateClass:根据构造方法反射创建对象的Bean有： "+ ctor);
+			//反射创建对象
 			return (KotlinDetector.isKotlinReflectPresent() && KotlinDetector.isKotlinType(ctor.getDeclaringClass()) ?
 					KotlinDelegate.instantiateClass(ctor, args) : ctor.newInstance(args));
 		}

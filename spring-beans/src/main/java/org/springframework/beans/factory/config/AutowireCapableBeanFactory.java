@@ -74,6 +74,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * @see #autowire
 	 * @see #autowireBeanProperties
 	 */
+	//常数，表示没有外部定义自动装配。注意BeanFactoryAware等和注解驱动的注入仍然会被应用
 	int AUTOWIRE_NO = 0;
 
 	/**

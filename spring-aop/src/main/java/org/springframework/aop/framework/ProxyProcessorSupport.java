@@ -36,6 +36,11 @@ import org.springframework.util.ObjectUtils;
  * @see AbstractAdvisingBeanPostProcessor
  * @see org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator
  */
+/**
+ * 具有代理处理器通用功能的基类，特别是类加载器管理和{@link #evaluateProxyInterfaces}算法。
+ * @author fussen
+ * Aug 18, 2020 10:57:36 AM
+ */
 @SuppressWarnings("serial")
 public class ProxyProcessorSupport extends ProxyConfig implements Ordered, BeanClassLoaderAware, AopInfrastructureBean {
 
@@ -102,7 +107,9 @@ public class ProxyProcessorSupport extends ProxyConfig implements Ordered, BeanC
 	 * @param proxyFactory the ProxyFactory for the bean
 	 */
 	protected void evaluateProxyInterfaces(Class<?> beanClass, ProxyFactory proxyFactory) {
+		//找到该类实现的所有接口
 		Class<?>[] targetInterfaces = ClassUtils.getAllInterfacesForClass(beanClass, getProxyClassLoader());
+		//标记是否存在合理的接口
 		boolean hasReasonableProxyInterface = false;
 		for (Class<?> ifc : targetInterfaces) {
 			if (!isConfigurationCallbackInterface(ifc) && !isInternalLanguageInterface(ifc) &&
@@ -113,6 +120,7 @@ public class ProxyProcessorSupport extends ProxyConfig implements Ordered, BeanC
 		}
 		if (hasReasonableProxyInterface) {
 			// Must allow for introductions; can't just set interfaces to the target's interfaces only.
+			//不管接口是否合理，都将其添加进去
 			for (Class<?> ifc : targetInterfaces) {
 				proxyFactory.addInterface(ifc);
 			}

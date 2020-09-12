@@ -41,6 +41,7 @@ public class MethodBeforeAdviceInterceptor implements MethodInterceptor, Seriali
 	 * Create a new MethodBeforeAdviceInterceptor for the given advice.
 	 * @param advice the MethodBeforeAdvice to wrap
 	 */
+	//将传入的MethodBeforeAdvice封装为MethodBeforeAdviceInterceptor
 	public MethodBeforeAdviceInterceptor(MethodBeforeAdvice advice) {
 		Assert.notNull(advice, "Advice must not be null");
 		this.advice = advice;
@@ -48,6 +49,8 @@ public class MethodBeforeAdviceInterceptor implements MethodInterceptor, Seriali
 
 	@Override
 	public Object invoke(MethodInvocation mi) throws Throwable {
+		System.out.println("============== 执行到了MethodBeforeAdviceInterceptor,将执行切面的before通知");
+		//org.springframework.aop.aspectj.AspectJMethodBeforeAdvice: advice method [public void com.fs.aspect.DemoAspect.before(org.aspectj.lang.JoinPoint)]; aspect name 'demoAspect'
 		this.advice.before(mi.getMethod(), mi.getArguments(), mi.getThis() );
 		return mi.proceed();
 	}

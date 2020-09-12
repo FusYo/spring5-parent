@@ -46,15 +46,27 @@ import org.springframework.util.Assert;
  * @since 2.0
  * @see org.springframework.aop.aspectj.annotation.AspectJAdvisorFactory
  */
+/**
+ * {@link AspectJAwareAdvisorAutoProxyCreator}子类，它处理当前应用程序上下文中所有AspectJ注释方面，以及Spring通知
+ * 基于注解版
+ * @author fussen
+ * Aug 18, 2020 10:07:32 AM
+ */
 @SuppressWarnings("serial")
 public class AnnotationAwareAspectJAutoProxyCreator extends AspectJAwareAdvisorAutoProxyCreator {
 
 	@Nullable
 	private List<Pattern> includePatterns;
 
+	//工厂的接口，这些工厂可以从用AspectJ注释语法注释的类创建Spring AOP通知器
+	//唯一实现类：ReflectiveAspectJAdvisorFactory
+	// 作用：基于@Aspect时,创建Spring AOP的Advice
+	// 里面会对标注这些注解Around.class, Before.class, After.class, AfterReturning.class, AfterThrowing.class的方法进行排序
+	// 然后把他们都变成Advisor( getAdvisors()方法 )
 	@Nullable
 	private AspectJAdvisorFactory aspectJAdvisorFactory;
-
+	//该工具类用来从bean容器（也就是BeanFactory）中获取所有使用了@AspectJ注解的bean
+	//就是这个方法：aspectJAdvisorsBuilder.buildAspectJAdvisors()
 	@Nullable
 	private BeanFactoryAspectJAdvisorsBuilder aspectJAdvisorsBuilder;
 
@@ -63,13 +75,15 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AspectJAwareAdvisorA
 	 * Set a list of regex patterns, matching eligible @AspectJ bean names.
 	 * <p>Default is to consider all @AspectJ beans as eligible.
 	 */
+	// 很显然，它还支持我们自定义一个正则的模版
+	// isEligibleAspectBean()该方法使用此模版，从而决定使用哪些Advisor
 	public void setIncludePatterns(List<String> patterns) {
 		this.includePatterns = new ArrayList<>(patterns.size());
 		for (String patternText : patterns) {
 			this.includePatterns.add(Pattern.compile(patternText));
 		}
 	}
-
+	// 可以自己实现一个AspectJAdvisorFactory  否则用默认的ReflectiveAspectJAdvisorFactory
 	public void setAspectJAdvisorFactory(AspectJAdvisorFactory aspectJAdvisorFactory) {
 		Assert.notNull(aspectJAdvisorFactory, "AspectJAdvisorFactory must not be null");
 		this.aspectJAdvisorFactory = aspectJAdvisorFactory;
@@ -85,18 +99,23 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AspectJAwareAdvisorA
 				new BeanFactoryAspectJAdvisorsBuilderAdapter(beanFactory, this.aspectJAdvisorFactory);
 	}
 
-
+	// 拿到所有的候选的advisor们。请注意：这里没有先调用了父类的super.findCandidateAdvisors()  去容器里找出来一些
+	// 然后，然后自己又通过aspectJAdvisorsBuilder.buildAspectJAdvisors()  解析@Aspect的方法得到一些Advisor
 	@Override
 	protected List<Advisor> findCandidateAdvisors() {
 		// Add all the Spring advisors found according to superclass rules.
+		//使用注解方式配置AOP的时候还是能够支持对XML配置的AOP支持的
+		//初次执行得到[]
 		List<Advisor> advisors = super.findCandidateAdvisors();
 		// Build Advisors for all AspectJ aspects in the bean factory.
 		if (this.aspectJAdvisorsBuilder != null) {
+			//重点在这里
 			advisors.addAll(this.aspectJAdvisorsBuilder.buildAspectJAdvisors());
 		}
 		return advisors;
 	}
 
+	//如果该Bean自己本身就是一个@Aspect， 那也认为是基础主键
 	@Override
 	protected boolean isInfrastructureClass(Class<?> beanClass) {
 		// Previously we setProxyTargetClass(true) in the constructor, but that has too
@@ -117,6 +136,7 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AspectJAwareAdvisorA
 	 * {@code null} and all beans are included. If "includePatterns" is non-null,
 	 * then one of the patterns must match.
 	 */
+	// 拿传入的正则模版进行匹配（没传就返回true，所有的Advisor都会生效）
 	protected boolean isEligibleAspectBean(String beanName) {
 		if (this.includePatterns == null) {
 			return true;

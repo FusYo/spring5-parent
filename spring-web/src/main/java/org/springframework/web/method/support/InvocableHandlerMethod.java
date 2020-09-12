@@ -127,15 +127,18 @@ public class InvocableHandlerMethod extends HandlerMethod {
 	 * @see #getMethodArgumentValues
 	 * @see #doInvoke
 	 */
+	//在给定请求的上下文中解析该方法的参数值后调用该方法
 	@Nullable
 	public Object invokeForRequest(NativeWebRequest request, @Nullable ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
-
+		//从request中解析出HandlerMethod方法所需要的参数
 		//在这里得到方法的参数
+		//得到请求参数的值[fs]
 		Object[] args = getMethodArgumentValues(request, mavContainer, providedArgs);
 		if (logger.isTraceEnabled()) {
 			logger.trace("Arguments: " + Arrays.toString(args));
 		}
+		//通过反射执行HandleMethod中的method，方法参数为args。并返回方法执行的返回值
 		return doInvoke(args);
 	}
 
@@ -145,26 +148,34 @@ public class InvocableHandlerMethod extends HandlerMethod {
 	 * <p>The resulting array will be passed into {@link #doInvoke}.
 	 * @since 5.1.2
 	 */
+	//获取当前请求的方法参数值，检查提供的参数值并返回到配置的参数解析器
 	protected Object[] getMethodArgumentValues(NativeWebRequest request, @Nullable ModelAndViewContainer mavContainer,
 			Object... providedArgs) throws Exception {
-
+		//[method 'helloArgs' parameter 0]
+		//获取方法参数数组
 		MethodParameter[] parameters = getMethodParameters();
 		if (ObjectUtils.isEmpty(parameters)) {
 			return EMPTY_ARGS;
 		}
-
+		//创建一个参数数组，保存从request解析出的方法参数
+		//[null]
 		Object[] args = new Object[parameters.length];
 		for (int i = 0; i < parameters.length; i++) {
+			//method 'helloArgs' parameter 0
 			MethodParameter parameter = parameters[i];
 			parameter.initParameterNameDiscovery(this.parameterNameDiscoverer);
+			//null
 			args[i] = findProvidedArgument(parameter, providedArgs);
 			if (args[i] != null) {
 				continue;
 			}
+			 //判断之前RequestMappingHandlerAdapter初始化的那24个HandlerMethodArgumentResolver（参数解析器），是否存在支持该参数解析的解析器
 			if (!this.resolvers.supportsParameter(parameter)) {
 				throw new IllegalStateException(formatArgumentError(parameter, "No suitable resolver"));
 			}
 			try {
+				//接续参数
+				//[com.fs.pojo.User@5d347e54]
 				args[i] = this.resolvers.resolveArgument(parameter, mavContainer, request, this.dataBinderFactory);
 			}
 			catch (Exception ex) {
@@ -189,7 +200,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
 		ReflectionUtils.makeAccessible(getBridgedMethod());
 		try {
 			//在这里调用controller的方法
-			//getBean() 获取当前方法的对象,args就是当前方法的参数,开始反射调用controller的方法
+			//getBean() 获取当前方法所在类的对象,args就是当前方法的参数,开始反射调用controller的方法
 			return getBridgedMethod().invoke(getBean(), args);
 		}
 		catch (IllegalArgumentException ex) {

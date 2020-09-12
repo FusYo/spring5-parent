@@ -75,7 +75,7 @@ public interface ApplicationEventPublisher {
 	 * @see #publishEvent(ApplicationEvent)
 	 * @see PayloadApplicationEvent
 	 */
-	//
+	//通知在此应用程序中注册的所有匹配的侦听器事件
 	void publishEvent(Object event);
 
 }

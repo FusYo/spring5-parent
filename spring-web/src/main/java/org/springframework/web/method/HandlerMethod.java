@@ -226,7 +226,9 @@ public class HandlerMethod {
 	 * If the bean method is a bridge method, this method returns the bridged
 	 * (user-defined) method. Otherwise it returns the same method as {@link #getMethod()}.
 	 */
+	//如果bean方法是桥接方法，则该方法返回桥接(用户定义)方法。否则，它返回与{@link #getMethod()}相同的方法。
 	protected Method getBridgedMethod() {
+		//public java.lang.String com.fs.controller.DemoController.hello()
 		return this.bridgedMethod;
 	}
 
@@ -325,7 +327,7 @@ public class HandlerMethod {
 			//从工厂中获取controller对象
 			handler = this.beanFactory.getBean(beanName);
 		}
-		//重新创建创建对象赋值 controller对象给HandlerMethod
+		//重新创建对象,赋值 controller对象给HandlerMethod
 		return new HandlerMethod(this, handler);
 	}
 

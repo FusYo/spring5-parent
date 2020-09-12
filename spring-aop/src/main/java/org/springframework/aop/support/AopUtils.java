@@ -221,26 +221,33 @@ public abstract class AopUtils {
 	 */
 	public static boolean canApply(Pointcut pc, Class<?> targetClass, boolean hasIntroductions) {
 		Assert.notNull(pc, "Pointcut must not be null");
+		//对bean进行粗筛 
 		if (!pc.getClassFilter().matches(targetClass)) {
 			return false;
 		}
-
+		//判断如何当前Advisor所指代的方法的切点表达式，如果是对任意方法都放行，则直接返回
 		MethodMatcher methodMatcher = pc.getMethodMatcher();
 		if (methodMatcher == MethodMatcher.TRUE) {
 			// No need to iterate the methods if we're matching any method anyway...
 			return true;
 		}
-
+		//将MethodMatcher强转为IntroductionAwareMethodMatcher类型的原因：
+		//如果目标类不包含Introduction类型的Advisor,那么使用IntroductionAwareMethodMatcher.matches()方法进行匹配判断时可以提升匹配效率
+		//其会判断目标bean中没有使用Introduction织入新的方法，则可以使用该方法进行静态匹配，从而提升效率
+		//因为Introduction类型的Advisor可以往目标类中织入新的方法，新的方法也可能被AOP环绕的方法
+		//IntroductionAwareMethodMatcher的主要实现类是AspectJExpressionPointct
 		IntroductionAwareMethodMatcher introductionAwareMethodMatcher = null;
 		if (methodMatcher instanceof IntroductionAwareMethodMatcher) {
 			introductionAwareMethodMatcher = (IntroductionAwareMethodMatcher) methodMatcher;
 		}
 
 		Set<Class<?>> classes = new LinkedHashSet<>(ClassUtils.getAllInterfacesForClassAsSet(targetClass));
+		//获取到targetClass所实现的接口的class对象，然后加到集合中
 		classes.add(targetClass);
 		for (Class<?> clazz : classes) {
 			Method[] methods = ReflectionUtils.getAllDeclaredMethods(clazz);
 			for (Method method : methods) {
+				//通过methodMatcher.matches来匹配方法
 				if ((introductionAwareMethodMatcher != null &&
 						introductionAwareMethodMatcher.matches(method, targetClass, hasIntroductions)) ||
 						methodMatcher.matches(method, targetClass)) {
@@ -278,12 +285,14 @@ public abstract class AopUtils {
 		if (advisor instanceof IntroductionAdvisor) {
 			return ((IntroductionAdvisor) advisor).getClassFilter().matches(targetClass);
 		}
+		//判断是否是PointcutAdvisor
 		else if (advisor instanceof PointcutAdvisor) {
 			PointcutAdvisor pca = (PointcutAdvisor) advisor;
 			return canApply(pca.getPointcut(), targetClass, hasIntroductions);
 		}
 		else {
 			// It doesn't have a pointcut so we assume it applies.
+			//如果Advisor连pointcut表达式都没有的话，就证明它是匹配到所有bean的
 			return true;
 		}
 	}
@@ -302,12 +311,14 @@ public abstract class AopUtils {
 		}
 		List<Advisor> eligibleAdvisors = new LinkedList<>();
 		for (Advisor candidate : candidateAdvisors) {
+			//判断Advisor对象是不是实现了IntroductionAdvisor
 			if (candidate instanceof IntroductionAdvisor && canApply(candidate, clazz)) {
 				eligibleAdvisors.add(candidate);
 			}
 		}
 		boolean hasIntroductions = !eligibleAdvisors.isEmpty();
 		for (Advisor candidate : candidateAdvisors) {
+			
 			if (candidate instanceof IntroductionAdvisor) {
 				// already processed
 				continue;
@@ -328,6 +339,7 @@ public abstract class AopUtils {
 	 * @throws Throwable if thrown by the target method
 	 * @throws org.springframework.aop.AopInvocationException in case of a reflection error
 	 */
+	//作为AOP方法调用的一部分，通过反射调用给定的目标
 	@Nullable
 	public static Object invokeJoinpointUsingReflection(@Nullable Object target, Method method, Object[] args)
 			throws Throwable {

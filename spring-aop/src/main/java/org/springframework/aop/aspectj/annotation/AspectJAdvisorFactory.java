@@ -36,6 +36,11 @@ import org.springframework.lang.Nullable;
  * @see AspectMetadata
  * @see org.aspectj.lang.reflect.AjTypeSystem
  */
+/**
+ * 工厂的接口，这些工厂可以从用AspectJ注释语法注释的类创建Spring AOP通知
+ * @author fussen
+ * Aug 18, 2020 11:30:43 AM
+ */
 public interface AspectJAdvisorFactory {
 
 	/**
@@ -49,6 +54,7 @@ public interface AspectJAdvisorFactory {
 	 * @param clazz the supposed annotation-style AspectJ class
 	 * @return whether or not this class is recognized by AspectJ as an aspect class
 	 */
+	//确定给定的类是否是一个切面，就像AspectJ的{@link org.aspectj.lang.reflect.AjTypeSystem}报告的那样。
 	boolean isAspect(Class<?> clazz);
 
 	/**
@@ -59,6 +65,7 @@ public interface AspectJAdvisorFactory {
 	 * @throws NotAnAtAspectException if the class is not an aspect at all
 	 * (which may or may not be legal, depending on the context)
 	 */
+	//给定的类是否是一个有效的AspectJ切面类
 	void validate(Class<?> aspectClass) throws AopConfigException;
 
 	/**
@@ -68,6 +75,7 @@ public interface AspectJAdvisorFactory {
 	 * (not the aspect instance itself in order to avoid eager instantiation)
 	 * @return a list of advisors for this class
 	 */
+	//为指定方面实例上所有带注释的At-AspectJ方法构建Spring AOP advisor程序
 	List<Advisor> getAdvisors(MetadataAwareAspectInstanceFactory aspectInstanceFactory);
 
 	/**
@@ -80,6 +88,7 @@ public interface AspectJAdvisorFactory {
 	 * or if it is a pointcut that will be used by other advice but will not
 	 * create a Spring advice in its own right
 	 */
+	//为给定的AspectJ通知方法构建一个Spring AOP 通知器。
 	@Nullable
 	Advisor getAdvisor(Method candidateAdviceMethod, MetadataAwareAspectInstanceFactory aspectInstanceFactory,
 			int declarationOrder, String aspectName);
@@ -100,6 +109,7 @@ public interface AspectJAdvisorFactory {
 	 * @see org.springframework.aop.aspectj.AspectJAfterReturningAdvice
 	 * @see org.springframework.aop.aspectj.AspectJAfterThrowingAdvice
 	 */
+	//为给定的AspectJ通知方法构建一个Spring AOP通知
 	@Nullable
 	Advice getAdvice(Method candidateAdviceMethod, AspectJExpressionPointcut expressionPointcut,
 			MetadataAwareAspectInstanceFactory aspectInstanceFactory, int declarationOrder, String aspectName);

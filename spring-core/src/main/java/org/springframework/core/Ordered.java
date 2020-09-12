@@ -40,18 +40,27 @@ package org.springframework.core;
  * @see org.springframework.core.annotation.Order
  * @see org.springframework.core.annotation.AnnotationAwareOrderComparator
  */
+/**
+ * 优先被容器注册，优先级仅次于PriorityOrdered
+ * @author fussen
+ * Aug 18, 2020 11:08:54 AM
+ */
 public interface Ordered {
 
 	/**
 	 * Useful constant for the highest precedence value.
 	 * @see java.lang.Integer#MIN_VALUE
 	 */
+	//用于最高优先级值的有用常数
+	//MIN_VALUE = 0x80000000
 	int HIGHEST_PRECEDENCE = Integer.MIN_VALUE;
 
 	/**
 	 * Useful constant for the lowest precedence value.
 	 * @see java.lang.Integer#MAX_VALUE
 	 */
+	//用于最低优先级值的有用常数
+	//MAX_VALUE = 0x7fffffff;
 	int LOWEST_PRECEDENCE = Integer.MAX_VALUE;
 
 
@@ -66,6 +75,7 @@ public interface Ordered {
 	 * @see #HIGHEST_PRECEDENCE
 	 * @see #LOWEST_PRECEDENCE
 	 */
+	//获取此对象的order值。
 	int getOrder();
 
 }

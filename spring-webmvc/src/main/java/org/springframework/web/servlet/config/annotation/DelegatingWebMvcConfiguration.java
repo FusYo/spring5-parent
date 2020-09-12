@@ -39,12 +39,23 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
  * @author Rossen Stoyanchev
  * @since 3.1
  */
+/**
+ * DelegatingWebMvcConfiguration是对Spring MVC进行配置的一个代理类。它结合缺省配置和用户配置定义Spring MVC运行时最终使用的配置
+ * @author fussen
+ * Sep 10, 2020 10:24:43 AM
+ */
 @Configuration
 public class DelegatingWebMvcConfiguration extends WebMvcConfigurationSupport {
 
+	// WebMvcConfigurerComposite 其实就是对多个 WebMvcConfigurer 的一个组合,
+	// 从命名就可以看出这一点
+	// WebMvcConfigurerComposite 自身也实现了接口 WebMvcConfigurer,
+	// 为什么要组合多个 WebMvcConfigurer 然后自己又实现该接口 ?
+	// 这么做的主要目的是在配置时简化逻辑。调用者对 WebMvcConfigurerComposite可以当作一个 WebMvcConfigurer 来使用，而对它的每个方法的调用都又会传导到它所包含的各个 WebMvcConfigurer 。
 	private final WebMvcConfigurerComposite configurers = new WebMvcConfigurerComposite();
 
-
+	// 注入一组WebMvcConfigurer，这些WebMvcConfigurer由开发人员提供，或者框架其他部分提供，已经
+	// 以bean的方式注入到容器中
 	@Autowired(required = false)
 	public void setConfigurers(List<WebMvcConfigurer> configurers) {
 		if (!CollectionUtils.isEmpty(configurers)) {
@@ -52,7 +63,9 @@ public class DelegatingWebMvcConfiguration extends WebMvcConfigurationSupport {
 		}
 	}
 
-
+	// 以下各个方法都是对WebMvcConfigurationSupport提供的配置原材料定制回调方法的覆盖实现，
+	// 对这些方法的调用最终都转化成了对configurers的方法调用，从而实现了定制化缺省Spring MVC 
+	// 配置的作用
 	@Override
 	protected void configurePathMatch(PathMatchConfigurer configurer) {
 		this.configurers.configurePathMatch(configurer);

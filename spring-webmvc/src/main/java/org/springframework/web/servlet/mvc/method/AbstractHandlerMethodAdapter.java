@@ -66,6 +66,7 @@ public abstract class AbstractHandlerMethodAdapter extends WebContentGenerator i
 	 */
 	@Override
 	public final boolean supports(Object handler) {
+		// 判断当前处理器是否为 HandlerMethod 类型且其是否支持内置（默认返回 true）
 		return (handler instanceof HandlerMethod && supportsInternal((HandlerMethod) handler));
 	}
 

@@ -16,6 +16,7 @@
     <!-- 读取xml配置文件是在获取xml文件路径之后  也即解析占位符之前 -->
     <context:property-placeholder location="classpath*:applicationContext.properties"/>
 
+    <bean id="" class=""></bean>
 
 
 

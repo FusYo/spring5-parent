@@ -49,6 +49,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Juergen Hoeller
  * @see org.springframework.aop.framework.AopProxy
  */
+/**
+ * AOP代理配置管理器的基类。这些本身不是AOP代理，但是这个类的子类通常是工厂，可以从工厂直接获得AOP代理实例
+ * @author fussen
+ * Aug 21, 2020 7:49:10 PM
+ */
 public class AdvisedSupport extends ProxyConfig implements Advised {
 
 	/** use serialVersionUID from Spring 2.0 for interoperability */
@@ -465,10 +470,13 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 	 * @param targetClass the target class
 	 * @return List of MethodInterceptors (may also include InterceptorAndDynamicMethodMatchers)
 	 */
+	//获取匹配方法的拦截器
 	public List<Object> getInterceptorsAndDynamicInterceptionAdvice(Method method, @Nullable Class<?> targetClass) {
+		//缓存的cacheKey，先尝试从缓存获取，不存在再从ProxyFactory中解析
 		MethodCacheKey cacheKey = new MethodCacheKey(method);
 		List<Object> cached = this.methodCache.get(cacheKey);
 		if (cached == null) {
+			//通过实例方法和ProxyFactory中保存的信息，解析出匹配的增强
 			cached = this.advisorChainFactory.getInterceptorsAndDynamicInterceptionAdvice(
 					this, method, targetClass);
 			this.methodCache.put(cacheKey, cached);

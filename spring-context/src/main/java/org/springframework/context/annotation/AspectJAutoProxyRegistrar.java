@@ -31,6 +31,12 @@ import org.springframework.core.type.AnnotationMetadata;
  * @since 3.1
  * @see EnableAspectJAutoProxy
  */
+/**
+ * 针对当前的{@link BeanDefinitionRegistry}根据给定的@{@link EnableAspectJAutoProxy}注释
+ * 注册一个{@link org.springframework.aop.aspectj.annotation.AnnotationAwareAspectJAutoProxyCreator}
+ * @author fussen
+ * Aug 13, 2020 11:02:00 AM
+ */
 class AspectJAutoProxyRegistrar implements ImportBeanDefinitionRegistrar {
 
 	/**
@@ -38,19 +44,26 @@ class AspectJAutoProxyRegistrar implements ImportBeanDefinitionRegistrar {
 	 * of the @{@link EnableAspectJAutoProxy#proxyTargetClass()} attribute on the importing
 	 * {@code @Configuration} class.
 	 */
+	//根据导入的{@code @Configuration}类上的@{@link EnableAspectJAutoProxy#proxyTargetClass()}属性的值，
+	//注册、升级和配置AspectJ自动代理创建器
 	@Override
 	public void registerBeanDefinitions(
 			AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
 
-		//把AOP的后置处理器添加进Spring的map集合中
+		//把AOP的后置处理器添加进Spring的map集合中-org.springframework.aop.config.internalAutoProxyCreator
+		//向容器注册一个给予注解的自动代理创建器
+		//后面实例化会创建一个AnnotationAwareAspectJAutoProxyCreator对象
 		AopConfigUtils.registerAspectJAnnotationAutoProxyCreatorIfNecessary(registry);
-
+		System.out.println("================ AOP的后置处理器(自动代理创建器)注册到了IOC容器中 ================");
 		AnnotationAttributes enableAspectJAutoProxy =
 				AnnotationConfigUtils.attributesFor(importingClassMetadata, EnableAspectJAutoProxy.class);
+		//{exposeProxy=false, proxyTargetClass=false}
 		if (enableAspectJAutoProxy != null) {
+			//true表示要使用CGLIB
 			if (enableAspectJAutoProxy.getBoolean("proxyTargetClass")) {
 				AopConfigUtils.forceAutoProxyCreatorToUseClassProxying(registry);
 			}
+			//true：表示能够从AopContext中拿到代理对象
 			if (enableAspectJAutoProxy.getBoolean("exposeProxy")) {
 				AopConfigUtils.forceAutoProxyCreatorToExposeProxy(registry);
 			}

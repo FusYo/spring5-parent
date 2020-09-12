@@ -65,15 +65,18 @@ public class DefaultDocumentLoader implements DocumentLoader {
 	 * Load the {@link Document} at the supplied {@link InputSource} using the standard JAXP-configured
 	 * XML parser.
 	 */
+	//使用标准的JAXP将载入的Bean定义资源转换成document对象
 	@Override
 	public Document loadDocument(InputSource inputSource, EntityResolver entityResolver,
 			ErrorHandler errorHandler, int validationMode, boolean namespaceAware) throws Exception {
 		//validationMode = 3;namespaceAware = false
+		//创建文件解析器工厂
 		DocumentBuilderFactory factory = createDocumentBuilderFactory(validationMode, namespaceAware);
 		if (logger.isTraceEnabled()) {
 			logger.trace("Using JAXP provider [" + factory.getClass().getName() + "]");
 		}
 		DocumentBuilder builder = createDocumentBuilder(factory, entityResolver, errorHandler);
+		//解析Spring的Bean定义资源
 		return builder.parse(inputSource);
 	}
 
@@ -88,10 +91,10 @@ public class DefaultDocumentLoader implements DocumentLoader {
 	//创建DocumentBuilderFactory实例
 	protected DocumentBuilderFactory createDocumentBuilderFactory(int validationMode, boolean namespaceAware)
 			throws ParserConfigurationException {
-
+		//创建文档解析工厂
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		factory.setNamespaceAware(namespaceAware);
-
+		 //设置解析XML的校验
 		if (validationMode != XmlValidationModeDetector.VALIDATION_NONE) {
 			factory.setValidating(true);
 			if (validationMode == XmlValidationModeDetector.VALIDATION_XSD) {

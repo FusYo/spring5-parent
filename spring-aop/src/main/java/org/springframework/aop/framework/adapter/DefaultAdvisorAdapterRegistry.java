@@ -46,6 +46,7 @@ public class DefaultAdvisorAdapterRegistry implements AdvisorAdapterRegistry, Se
 	/**
 	 * Create a new DefaultAdvisorAdapterRegistry, registering well-known adapters.
 	 */
+	//3个默认的是Advice适配器
 	public DefaultAdvisorAdapterRegistry() {
 		registerAdvisorAdapter(new MethodBeforeAdviceAdapter());
 		registerAdvisorAdapter(new AfterReturningAdviceAdapter());
@@ -59,13 +60,18 @@ public class DefaultAdvisorAdapterRegistry implements AdvisorAdapterRegistry, Se
 			return (Advisor) adviceObject;
 		}
 		if (!(adviceObject instanceof Advice)) {
+			//必须是Advice类型
 			throw new UnknownAdviceTypeException(adviceObject);
 		}
 		Advice advice = (Advice) adviceObject;
 		if (advice instanceof MethodInterceptor) {
 			// So well-known it doesn't even need an adapter.
+			//如果是MethodInterceptor，则直接使用DefaultPointcutAdvisor进行包装
 			return new DefaultPointcutAdvisor(advice);
 		}
+		//否则遍历注册的适配器，如果存在支持的适配器，则使用DefaultPointcutAdvisor包装
+		//BeforeAdvice、AfterAdvice、ThrowsAdvice三种通知类型的支持是借助适配器模式来实现的
+		//负责对AdvisorAdapter进行注册
 		for (AdvisorAdapter adapter : this.adapters) {
 			// Check that it is supported.
 			if (adapter.supportsAdvice(advice)) {
@@ -75,13 +81,19 @@ public class DefaultAdvisorAdapterRegistry implements AdvisorAdapterRegistry, Se
 		throw new UnknownAdviceTypeException(advice);
 	}
 
+	
+	//如果Advice增强已经实现了MethodInterceptor，则不需要转换，可以直接使用。例如：@After注解标注的增强方法会被表示为AspectJAfterAdvice，该类同时实现了Advice和MethodInterceptor接口，也就是已经在类中规定好了拦截的逻辑。
+	//Advice实现了没有同时实现MethodInterceptor，所以需要使用内置的适配器将Advice增强转换为MethodInterceptor拦截器。
 	@Override
 	public MethodInterceptor[] getInterceptors(Advisor advisor) throws UnknownAdviceTypeException {
 		List<MethodInterceptor> interceptors = new ArrayList<>(3);
+		//获取Advice
 		Advice advice = advisor.getAdvice();
+		//如果Advice实例同时已经实现MethodInterceptor接口，则直接使用
 		if (advice instanceof MethodInterceptor) {
 			interceptors.add((MethodInterceptor) advice);
 		}
+		//需要使用适配器来转换Advice接口
 		for (AdvisorAdapter adapter : this.adapters) {
 			if (adapter.supportsAdvice(advice)) {
 				interceptors.add(adapter.getInterceptor(advisor));

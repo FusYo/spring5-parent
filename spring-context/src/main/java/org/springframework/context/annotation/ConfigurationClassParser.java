@@ -158,7 +158,7 @@ class ConfigurationClassParser {
 		this.conditionEvaluator = new ConditionEvaluator(registry, environment, resourceLoader);
 	}
 
-
+	//解析注册
 	public void parse(Set<BeanDefinitionHolder> configCandidates) {
 		//遍历每个beanHolder,其实这个bean中都是被加了注解的
 		//其实一般就是配置类configCandidates只有一个
@@ -259,7 +259,7 @@ class ConfigurationClassParser {
 		while (sourceClass != null);
 
 		//扫描出来的所有的beanDefinition
-		//多个递归调用之后,这个集合会存储着 所有的配置类,所有被加了注解的类,以及实现了 ImportSelector 接口返回的类
+		//多个递归调用之后,这个集合会存储着所有的配置类,所有被加了注解的类,以及实现了 ImportSelector 接口返回的类
 		this.configurationClasses.put(configClass, configClass);
 	}
 
@@ -271,6 +271,7 @@ class ConfigurationClassParser {
 	 * @param sourceClass a source class
 	 * @return the superclass, or {@code null} if none found or previously processed
 	 */
+	//通过阅读源类中的注释、成员和方法，应用处理并构建一个完整的{@link ConfigurationClass}。可以调用此方法
 	@Nullable
 	protected final SourceClass doProcessConfigurationClass(ConfigurationClass configClass, SourceClass sourceClass)
 			throws IOException {
@@ -314,7 +315,7 @@ class ConfigurationClassParser {
 				// Check the set of scanned definitions for any further config classes and parse recursively if needed
 				//scannedBeanDefinitions集合里面的所有bean已经被存储在beanFactory的map集合中了
 				//现在再次遍历所有的bean,查看这些beanDefinition中时候也存在 @ComponetScan @Import 等等注解
-				//如果有的话,也会进行注册到map集合中,    好精妙 太厉害了,厉害
+				//如果有的话,也会进行注册到map集合中
 				for (BeanDefinitionHolder holder : scannedBeanDefinitions) {
 					BeanDefinition bdCand = holder.getBeanDefinition().getOriginatingBeanDefinition();
 					if (bdCand == null) {

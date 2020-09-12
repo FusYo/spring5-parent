@@ -258,6 +258,7 @@ public abstract class AnnotationConfigUtils {
 		processCommonDefinitionAnnotations(abd, abd.getMetadata());
 	}
 
+	//AnnotatedBeanDefinition对象对特定注解进行针对处理
 	static void processCommonDefinitionAnnotations(AnnotatedBeanDefinition abd, AnnotatedTypeMetadata metadata) {
 		//判断当前的类是否加了lazy注解
 		AnnotationAttributes lazy = attributesFor(metadata, Lazy.class);
@@ -295,9 +296,10 @@ public abstract class AnnotationConfigUtils {
 
 	static BeanDefinitionHolder applyScopedProxyMode(
 			ScopeMetadata metadata, BeanDefinitionHolder definition, BeanDefinitionRegistry registry) {
-
+		//不创建范围代理
 		ScopedProxyMode scopedProxyMode = metadata.getScopedProxyMode();
 		if (scopedProxyMode.equals(ScopedProxyMode.NO)) {
+			//初始进入这里面
 			return definition;
 		}
 		boolean proxyTargetClass = scopedProxyMode.equals(ScopedProxyMode.TARGET_CLASS);

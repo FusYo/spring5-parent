@@ -90,6 +90,7 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 	}
 
 
+	//基本数据类型请求参数解析
 	@Override
 	@Nullable
 	public final Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
@@ -97,13 +98,13 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 
 		NamedValueInfo namedValueInfo = getNamedValueInfo(parameter);
 		MethodParameter nestedParameter = parameter.nestedIfOptional();
-
+		//获取参数名
 		Object resolvedName = resolveStringValue(namedValueInfo.name);
 		if (resolvedName == null) {
 			throw new IllegalArgumentException(
 					"Specified name must not resolve to null: [" + namedValueInfo.name + "]");
 		}
-
+		//获取参数对应的值
 		Object arg = resolveName(resolvedName.toString(), nestedParameter, webRequest);
 		if (arg == null) {
 			if (namedValueInfo.defaultValue != null) {
@@ -121,6 +122,7 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 		if (binderFactory != null) {
 			WebDataBinder binder = binderFactory.createBinder(webRequest, null, namedValueInfo.name);
 			try {
+				 //将请求绑定至目标binder的target对象
 				arg = binder.convertIfNecessary(arg, parameter.getParameterType(), parameter);
 			}
 			catch (ConversionNotSupportedException ex) {

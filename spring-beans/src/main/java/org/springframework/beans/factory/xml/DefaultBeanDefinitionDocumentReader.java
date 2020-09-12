@@ -94,6 +94,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	@Override
 	public void registerBeanDefinitions(Document doc, XmlReaderContext readerContext) {
 		this.readerContext = readerContext;
+		//获得Document的根元素,进行解析操作，注册BeanDefinition
 		doRegisterBeanDefinitions(doc.getDocumentElement());
 	}
 
@@ -160,10 +161,12 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		this.delegate = parent;
 	}
 
+	//创建BeanDefinitionParserDelegate，用于完成真正的解析过程
 	protected BeanDefinitionParserDelegate createDelegate(
 			XmlReaderContext readerContext, Element root, @Nullable BeanDefinitionParserDelegate parentDelegate) {
 
 		BeanDefinitionParserDelegate delegate = new BeanDefinitionParserDelegate(readerContext);
+		//BeanDefinitionParserDelegate初始化Document根元素
 		delegate.initDefaults(root, parentDelegate);
 		return delegate;
 	}
@@ -176,20 +179,26 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	//解析文档中根级别的元素-"import", "alias", "bean"
 	protected void parseBeanDefinitions(Element root, BeanDefinitionParserDelegate delegate) {
 		//默认命名空间：http://www.springframework.org/schema/beans
-		//使用Spring的Bean规则解析元素节点
+		//使用Spring的Bean规则解析元素节点-Bean定义的Document对象使用了Spring默认的XML命名空间
 		if (delegate.isDefaultNamespace(root)) {
+			//获取Bean定义的Document对象根元素的所有子节点
 			NodeList nl = root.getChildNodes();
 			for (int i = 0; i < nl.getLength(); i++) {
+				//取出节点
 				Node node = nl.item(i);
+				//获得Document节点是XML元素节点
 				if (node instanceof Element) {
 					Element ele = (Element) node;
+					//bean定义的document对象使用了spring默认的命名空间	
 					if (delegate.isDefaultNamespace(ele)) {
 						System.out.println("if分支--------DefaultBeanDefinitionDocumentReader.java-->parseBeanDefinitions: 解析到跟级别的元素标签【import, alias, bean,beans】-----");
+						//使用Spring的Bean规则解析元素节点
 						parseDefaultElement(ele, delegate);
 					}
 					else {
 						//[context:component-scan: null]扫描注解标签会走这里
 						System.out.println("else分支--------DefaultBeanDefinitionDocumentReader.java-->parseBeanDefinitions: 解析到除上面以外的元素标签-----");
+						//Document的根节点没有使用Spring默认的命名空间，则使用用户自定义的解析规则解析Document根节点
 						delegate.parseCustomElement(ele);
 					}
 				}
@@ -201,13 +210,17 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		}
 	}
 
+	//使用Spring的Bean规则解析Document元素节点
 	private void parseDefaultElement(Element ele, BeanDefinitionParserDelegate delegate) {
+		//如果元素节点是<Import>导入元素，进行导入解析
 		if (delegate.nodeNameEquals(ele, IMPORT_ELEMENT)) {
 			importBeanDefinitionResource(ele);
 		}
+		//如果元素节点是<Alias>别名元素，进行别名解析
 		else if (delegate.nodeNameEquals(ele, ALIAS_ELEMENT)) {
 			processAliasRegistration(ele);
 		}
+		//元素节点既不是导入元素，也不是别名元素，即普通的<Bean>元素，按照Spring的Bean规则解析元素
 		else if (delegate.nodeNameEquals(ele, BEAN_ELEMENT)) {
 			processBeanDefinition(ele, delegate);
 		}
@@ -317,12 +330,16 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	 * Process the given bean element, parsing the bean definition
 	 * and registering it with the registry.
 	 */
+	//解析Bean定义资源Document对象的普通元素
 	protected void processBeanDefinition(Element ele, BeanDefinitionParserDelegate delegate) {
+		// BeanDefinitionHolder是对BeanDefinition的封装，即Bean定义的封装类
+	    // 对Document对象中<Bean>元素的解析由BeanDefinitionParserDelegate实现
 		BeanDefinitionHolder bdHolder = delegate.parseBeanDefinitionElement(ele);
 		if (bdHolder != null) {
 			bdHolder = delegate.decorateBeanDefinitionIfRequired(ele, bdHolder);
 			try {
 				// Register the final decorated instance.
+				//向IOC容器注册解析得到的Bean定义，这是Bean定义向IOC容器注册的入口
 				BeanDefinitionReaderUtils.registerBeanDefinition(bdHolder, getReaderContext().getRegistry());
 			}
 			catch (BeanDefinitionStoreException ex) {
@@ -330,6 +347,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 						bdHolder.getBeanName() + "'", ele, ex);
 			}
 			// Send registration event.
+			//在完成向IOC容器注册解析得到的Bean定义之后，发送注册事件
 			getReaderContext().fireComponentRegistered(new BeanComponentDefinition(bdHolder));
 		}
 	}

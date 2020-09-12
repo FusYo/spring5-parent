@@ -56,6 +56,12 @@ import org.springframework.lang.Nullable;
  * @see org.springframework.aop.framework.ProxyFactoryBean
  * @see org.springframework.jndi.JndiObjectFactoryBean
  */
+/**
+ * 由在{@link BeanFactory}中使用的对象实现的接口，这些对象本身就是单个对象的工厂。如果一个bean实现了这个接口，它就被用作要公开的对象的工厂，而不是直接作为将自己公开的bean实例
+ * @author fussen
+ *  2020.7.17 00:20
+ * @param <T>
+ */
 public interface FactoryBean<T> {
 
 	/**
@@ -75,6 +81,7 @@ public interface FactoryBean<T> {
 	 * @throws Exception in case of creation errors
 	 * @see FactoryBeanNotInitializedException
 	 */
+	//返回一个被工厂管理的bean实例
 	@Nullable
 	T getObject() throws Exception;
 
@@ -97,6 +104,7 @@ public interface FactoryBean<T> {
 	 * or {@code null} if not known at the time of the call
 	 * @see ListableBeanFactory#getBeansOfType
 	 */
+	//返回FactoryBean创建的对象类型，如果事先不知道，返回{@code null}
 	@Nullable
 	Class<?> getObjectType();
 
@@ -125,6 +133,7 @@ public interface FactoryBean<T> {
 	 * @see #getObject()
 	 * @see SmartFactoryBean#isPrototype()
 	 */
+	//这个工厂管理的对象是单例对象吗
 	default boolean isSingleton() {
 		return true;
 	}

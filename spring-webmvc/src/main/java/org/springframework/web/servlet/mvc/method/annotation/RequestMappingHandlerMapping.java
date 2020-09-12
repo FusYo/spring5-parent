@@ -214,17 +214,26 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 	 * @see #getCustomMethodCondition(Method)
 	 * @see #getCustomTypeCondition(Class)
 	 */
+	//使用方法和类型级的@{@link RequestMapping}注释创建RequestMappingInfo
 	@Override
 	@Nullable
 	protected RequestMappingInfo getMappingForMethod(Method method, Class<?> handlerType) {
+		//// 处理方法级别的 @RequestMapping
+		//{ /hello}
 		RequestMappingInfo info = createRequestMappingInfo(method);
 		if (info != null) {
+			// 处理类级别的 @RequestMapping
+			//{ /demo}
 			RequestMappingInfo typeInfo = createRequestMappingInfo(handlerType);
 			if (typeInfo != null) {
+				// 如果存在类级别的 @RequestMapping 则将其与方法级别的映射关系进行组合（将所有对应的属性进行拼接）
+				//{ /demo/hello}
 				info = typeInfo.combine(info);
 			}
+			// 获取路径前缀
 			String prefix = getPathPrefix(handlerType);
 			if (prefix != null) {
+				// 如果存在路径前缀则进行再一次的拼接操作
 				info = RequestMappingInfo.paths(prefix).build().combine(info);
 			}
 		}
@@ -254,9 +263,12 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 	 */
 	@Nullable
 	private RequestMappingInfo createRequestMappingInfo(AnnotatedElement element) {
+		// 获取请求映射关系（获取 @RequestMapping 注解）
 		RequestMapping requestMapping = AnnotatedElementUtils.findMergedAnnotation(element, RequestMapping.class);
+		// 根据传入的是类还是方法调用不同的自定义方法来进行处理（默认返回 null）
 		RequestCondition<?> condition = (element instanceof Class ?
 				getCustomTypeCondition((Class<?>) element) : getCustomMethodCondition((Method) element));
+		// 如果获取到的请求映射不为空则创建一个 RequestMappingInfo 包装类
 		return (requestMapping != null ? createRequestMappingInfo(requestMapping, condition) : null);
 	}
 
@@ -271,6 +283,8 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 	 * @param handlerType the handler type for which to create the condition
 	 * @return the condition, or {@code null}
 	 */
+	//提供给外部的一个扩展点
+	//提供自定义类级别的请求条件
 	@Nullable
 	protected RequestCondition<?> getCustomTypeCondition(Class<?> handlerType) {
 		return null;
@@ -287,6 +301,8 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 	 * @param method the handler method for which to create the condition
 	 * @return the condition, or {@code null}
 	 */
+	//提供给外部的一个扩展点
+	//提供自定义方法级别的请求条件
 	@Nullable
 	protected RequestCondition<?> getCustomMethodCondition(Method method) {
 		return null;

@@ -37,6 +37,11 @@ import org.springframework.lang.Nullable;
  * @since 1.1
  * @see org.springframework.core.io.Resource
  */
+/**
+ * bean定义阅读器的简单接口。指定带有资源和字符串位置参数的加载方法
+ * @author fussen
+ * Jul 20, 2020
+ */
 public interface BeanDefinitionReader {
 
 	/**
@@ -44,6 +49,7 @@ public interface BeanDefinitionReader {
 	 * <p>The factory is exposed through the BeanDefinitionRegistry interface,
 	 * encapsulating the methods that are relevant for bean definition handling.
 	 */
+	//返回用于注册bean定义的bean工厂
 	BeanDefinitionRegistry getRegistry();
 
 	/**
@@ -63,6 +69,7 @@ public interface BeanDefinitionReader {
 	 * @see #loadBeanDefinitions(String)
 	 * @see org.springframework.core.io.support.ResourcePatternResolver
 	 */
+	//为资源位置返回要使用的资源加载器
 	@Nullable
 	ResourceLoader getResourceLoader();
 
@@ -72,6 +79,7 @@ public interface BeanDefinitionReader {
 	 * but rather to just register bean definitions with class names,
 	 * with the corresponding Classes to be resolved later (or never).
 	 */
+	//返回bean类要使用的类加载器
 	@Nullable
 	ClassLoader getBeanClassLoader();
 
@@ -79,6 +87,7 @@ public interface BeanDefinitionReader {
 	 * Return the BeanNameGenerator to use for anonymous beans
 	 * (without explicit bean name specified).
 	 */
+	//返回用于匿名bean的BeanNameGenerator(不指定显式bean名称)
 	BeanNameGenerator getBeanNameGenerator();
 
 
@@ -88,6 +97,7 @@ public interface BeanDefinitionReader {
 	 * @return the number of bean definitions found
 	 * @throws BeanDefinitionStoreException in case of loading or parsing errors
 	 */
+	//从指定的资源加载bean定义
 	int loadBeanDefinitions(Resource resource) throws BeanDefinitionStoreException;
 
 	/**
@@ -96,6 +106,7 @@ public interface BeanDefinitionReader {
 	 * @return the number of bean definitions found
 	 * @throws BeanDefinitionStoreException in case of loading or parsing errors
 	 */
+	//从指定的资源加载bean定义
 	int loadBeanDefinitions(Resource... resources) throws BeanDefinitionStoreException;
 
 	/**
@@ -110,6 +121,7 @@ public interface BeanDefinitionReader {
 	 * @see #loadBeanDefinitions(org.springframework.core.io.Resource)
 	 * @see #loadBeanDefinitions(org.springframework.core.io.Resource[])
 	 */
+	//从指定的资源位置加载bean定义
 	int loadBeanDefinitions(String location) throws BeanDefinitionStoreException;
 
 	/**
@@ -119,6 +131,7 @@ public interface BeanDefinitionReader {
 	 * @return the number of bean definitions found
 	 * @throws BeanDefinitionStoreException in case of loading or parsing errors
 	 */
+	////从指定的资源位置加载bean定义
 	int loadBeanDefinitions(String... locations) throws BeanDefinitionStoreException;
 
 }

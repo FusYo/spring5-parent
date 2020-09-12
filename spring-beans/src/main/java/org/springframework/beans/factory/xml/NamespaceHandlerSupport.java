@@ -79,6 +79,7 @@ public abstract class NamespaceHandlerSupport implements NamespaceHandler {
 	 * Locates the {@link BeanDefinitionParser} from the register implementations using
 	 * the local name of the supplied {@link Element}.
 	 */
+	//使用提供的{@link Element}的本地名称从寄存器实现中查找{@link BeanDefinitionParser}
 	@Nullable
 	private BeanDefinitionParser findParserForElement(Element element, ParserContext parserContext) {
 		//localName = component-scan

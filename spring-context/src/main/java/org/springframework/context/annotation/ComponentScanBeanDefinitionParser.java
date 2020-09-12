@@ -77,6 +77,7 @@ public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser {
 	private static final String FILTER_EXPRESSION_ATTRIBUTE = "expression";
 
 
+	// 扫描bean定义并注册到容器中
 	@Override
 	@Nullable
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
@@ -89,7 +90,10 @@ public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser {
 
 		// Actually scan for bean definitions and register them.
 		//实际扫描bean定义并注册它们。
+		//[context:component-scan: null]
+		//[annotation-config="true", base-package="com.fs", use-default-filters="true"]
 		ClassPathBeanDefinitionScanner scanner = configureScanner(parserContext, element);
+		//执行下面的方法，会将BeanDefinition注册到IOC容器
 		Set<BeanDefinitionHolder> beanDefinitions = scanner.doScan(basePackages);
 		registerComponents(parserContext.getReaderContext(), beanDefinitions, element);
 
@@ -98,11 +102,14 @@ public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser {
 
 	protected ClassPathBeanDefinitionScanner configureScanner(ParserContext parserContext, Element element) {
 		boolean useDefaultFilters = true;
+		//use-default-filters
 		if (element.hasAttribute(USE_DEFAULT_FILTERS_ATTRIBUTE)) {
+			//true
 			useDefaultFilters = Boolean.valueOf(element.getAttribute(USE_DEFAULT_FILTERS_ATTRIBUTE));
 		}
 
 		// Delegate bean definition registration to scanner class.
+		//将bean定义注册委托给扫描类
 		ClassPathBeanDefinitionScanner scanner = createScanner(parserContext.getReaderContext(), useDefaultFilters);
 		scanner.setBeanDefinitionDefaults(parserContext.getDelegate().getBeanDefinitionDefaults());
 		scanner.setAutowireCandidatePatterns(parserContext.getDelegate().getAutowireCandidatePatterns());

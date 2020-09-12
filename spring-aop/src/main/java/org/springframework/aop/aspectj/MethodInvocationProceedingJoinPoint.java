@@ -86,6 +86,8 @@ public class MethodInvocationProceedingJoinPoint implements ProceedingJoinPoint,
 
 	@Override
 	public Object proceed() throws Throwable {
+		//切面环绕通知方法里面执行目标方法调用出 (ProceedingJoinPoint)joinpoint).proceed()
+		System.out.println("=========== 正在执行环绕方法里(ProceedingJoinPoint)joinpoint).proceed()方法。。。。。");
 		return this.methodInvocation.invocableClone().proceed();
 	}
 

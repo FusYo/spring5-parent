@@ -59,7 +59,9 @@ public abstract class AbstractDispatcherServletInitializer extends AbstractConte
 
 	@Override
 	public void onStartup(ServletContext servletContext) throws ServletException {
+		//创建web 父级容器
 		super.onStartup(servletContext);
+		//创建web servlet级容器
 		registerDispatcherServlet(servletContext);
 	}
 
@@ -74,15 +76,23 @@ public abstract class AbstractDispatcherServletInitializer extends AbstractConte
 	 * {@link #createDispatcherServlet(WebApplicationContext)}.
 	 * @param servletContext the context to register the servlet against
 	 */
+	//启动server容器执行到此处
 	protected void registerDispatcherServlet(ServletContext servletContext) {
+		//dispatcher
 		String servletName = getServletName();
 		Assert.hasLength(servletName, "getServletName() must not return null or empty");
-
+		//创建spring web servlet级别容器
+		//调用的是子类AbstractAnnotationConfigDispatcherServletInitializer的方法
+		//这里会将我们自定义的初始化子类中，加入的MvcConfig放入到对象中
 		WebApplicationContext servletAppContext = createServletApplicationContext();
+		System.out.println("创建完spring web容器 -> servlet级别容器。。。。。。");
 		Assert.notNull(servletAppContext, "createServletApplicationContext() must not return null");
-
+		//创建DispatcherServlet实例
+		//将刚才创建的web容器放入对象中，传递给FrameworkServlet类的webApplicationContext属性，同时设置这个servlet应该向doService方法发送一个HTTP选项请求
 		FrameworkServlet dispatcherServlet = createDispatcherServlet(servletAppContext);
+		System.out.println("创建完DispatcherServlet实例,将servlet级别容器加入其中。。。。。。");
 		Assert.notNull(dispatcherServlet, "createDispatcherServlet(WebApplicationContext) must not return null");
+		//getServletApplicationContextInitializers() == null
 		dispatcherServlet.setContextInitializers(getServletApplicationContextInitializers());
 
 		ServletRegistration.Dynamic registration = servletContext.addServlet(servletName, dispatcherServlet);
@@ -101,7 +111,7 @@ public abstract class AbstractDispatcherServletInitializer extends AbstractConte
 				registerServletFilter(servletContext, filter);
 			}
 		}
-
+		//空方法
 		customizeRegistration(registration);
 	}
 
@@ -130,6 +140,7 @@ public abstract class AbstractDispatcherServletInitializer extends AbstractConte
 	 * <p>Note: This allows for any {@link FrameworkServlet} subclass as of 4.2.3.
 	 * Previously, it insisted on returning a {@link DispatcherServlet} or subclass thereof.
 	 */
+	// 使用指定的{@link WebApplicationContext}创建一个{@link DispatcherServlet}(或其他类型的{@link FrameworkServlet}派生的dispatcher)
 	protected FrameworkServlet createDispatcherServlet(WebApplicationContext servletAppContext) {
 		return new DispatcherServlet(servletAppContext);
 	}

@@ -82,6 +82,7 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 			@Nullable Constructor<?> ctor, Object... args) {
 
 		// Must generate CGLIB subclass...
+		//CGLIB动态代理 
 		return new CglibSubclassCreator(bd, owner).instantiate(ctor, args);
 	}
 
@@ -113,6 +114,7 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 		 * Ignored if the {@code ctor} parameter is {@code null}.
 		 * @return new instance of the dynamically generated subclass
 		 */
+		//创建实现所需查找的动态生成子类的新实例
 		public Object instantiate(@Nullable Constructor<?> ctor, Object... args) {
 			Class<?> subclass = createEnhancedSubclass(this.beanDefinition);
 			Object instance;
@@ -133,8 +135,8 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 			// enhanced class (via the Enhancer) in order to avoid memory leaks.
 			Factory factory = (Factory) instance;
 			factory.setCallbacks(new Callback[] {NoOp.INSTANCE,
-					new LookupOverrideMethodInterceptor(this.beanDefinition, this.owner),
-					new ReplaceOverrideMethodInterceptor(this.beanDefinition, this.owner)});
+					new LookupOverrideMethodInterceptor(this.beanDefinition, this.owner),// lookup-method处理
+					new ReplaceOverrideMethodInterceptor(this.beanDefinition, this.owner)}); // replace-method处理
 			return instance;
 		}
 

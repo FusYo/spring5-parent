@@ -31,6 +31,11 @@ package org.springframework.beans.factory;
  * @see org.springframework.beans.factory.config.BeanDefinition#getPropertyValues()
  * @see org.springframework.beans.factory.support.AbstractBeanDefinition#getInitMethodName()
  */
+/**
+ * bean实例完成后需要执行自定义初始化方法,实现此接口
+ * @author fussen
+ * Sep 11, 2020 5:32:21 PM
+ */
 public interface InitializingBean {
 
 	/**

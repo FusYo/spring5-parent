@@ -110,6 +110,7 @@ public class GenericApplicationContext extends AbstractApplicationContext implem
 	 * @see #registerBeanDefinition
 	 * @see #refresh
 	 */
+	//创建一个新的GenericApplicationContext
 	public GenericApplicationContext() {
 		//实例化工厂
 		this.beanFactory = new DefaultListableBeanFactory();
@@ -263,6 +264,10 @@ public class GenericApplicationContext extends AbstractApplicationContext implem
 	 * to register beans through our public methods (or the BeanFactory's).
 	 * @see #registerBeanDefinition
 	 */
+	//AbstractApplicationContext模板方法的实现
+	//什么也不做:我们持有一个内部BeanFactory，并依赖调用者通过我们的公共方法(或BeanFactory的方法)注册bean
+	//注解方式refresh方法会走该实现类的方法
+	//TODO:标识
 	@Override
 	protected final void refreshBeanFactory() throws IllegalStateException {
 		if (!this.refreshed.compareAndSet(false, true)) {
@@ -318,11 +323,12 @@ public class GenericApplicationContext extends AbstractApplicationContext implem
 	//---------------------------------------------------------------------
 	// Implementation of BeanDefinitionRegistry
 	//---------------------------------------------------------------------
-
+	//实现BeanDefinitionRegistry接口方法
+	//注解方式会初始化配置类会先进入此方法
 	@Override
 	public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition)
 			throws BeanDefinitionStoreException {
-       //DefaultListableBeanFactory这个相当重要
+        //然后调用DefaultListableBeanFactory的同名registerBeanDefinition方法进行初始化
 		this.beanFactory.registerBeanDefinition(beanName, beanDefinition);
 	}
 

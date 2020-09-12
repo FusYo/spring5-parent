@@ -147,8 +147,12 @@ class ConfigurationClassBeanDefinitionReader {
 
 		loadBeanDefinitionsFromImportedResources(configClass.getImportedResources());
 
-		//如果以上都不是的话,把实现了ImportBeanDefinitionRegistrar注册到map中 太厉害了
-		//就是执行实现ImportBeanDefinitionRegistrar的类的registerBeanDefinitions方法里面注册的
+		//如果以上都不是的话,把实现了ImportBeanDefinitionRegistrar注册到map中
+		//就是执行实现ImportBeanDefinitionRegistrar的类的registerBeanDefinitions方法手动注册的
+		//例子：ConfigurationClass: beanName 'aopTest', com.fs.AopTest
+		//{org.springframework.context.annotation.AspectJAutoProxyRegistrar@5965d37
+		//=org.springframework.core.type.StandardAnnotationMetadata@740fb309}
+		//Map<ImportBeanDefinitionRegistrar, AnnotationMetadata>
 		loadBeanDefinitionsFromRegistrars(configClass.getImportBeanDefinitionRegistrars());
 	}
 
@@ -376,6 +380,7 @@ class ConfigurationClassBeanDefinitionReader {
 
 	private void loadBeanDefinitionsFromRegistrars(Map<ImportBeanDefinitionRegistrar, AnnotationMetadata> registrars) {
 		registrars.forEach((registrar, metadata) ->
+		//这里会调用AspectJAutoProxyRegistrar的registerBeanDefinitions方法，完成代理创建器的注册
 				registrar.registerBeanDefinitions(metadata, this.registry));
 	}
 

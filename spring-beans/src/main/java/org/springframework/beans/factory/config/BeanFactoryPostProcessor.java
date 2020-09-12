@@ -41,7 +41,13 @@ import org.springframework.beans.BeansException;
  * @since 06.07.2003
  * @see BeanPostProcessor
  * @see PropertyResourceConfigurer
+ * 
+ */
+/**
+ * 允许自定义修改应用程序上下文的bean定义，调整上下文底层bean工厂的bean属性值
  * 和BeanPostProcessor一样,也是Spring的扩展点之一
+ * @author fussen
+ * Jul 22, 2020 11:19:09 AM
  */
 @FunctionalInterface
 public interface BeanFactoryPostProcessor {
@@ -53,9 +59,10 @@ public interface BeanFactoryPostProcessor {
 	 * properties even to eager-initializing beans.
 	 * @param beanFactory the bean factory used by the application context
 	 * @throws org.springframework.beans.BeansException in case of errors
-	 * 自己定义一个类,重写这个方法,可以获取到 bean工厂,插手bean的实例化过程
-	 * 获取到bean工厂对象
+	 * 
 	 */
+	//自己定义一个类,重写这个方法,可以获取到 bean工厂,插手bean的实例化过程
+	//获取到bean工厂对象
 	void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException;
 
 }

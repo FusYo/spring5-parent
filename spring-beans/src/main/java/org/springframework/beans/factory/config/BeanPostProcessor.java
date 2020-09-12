@@ -39,8 +39,11 @@ import org.springframework.lang.Nullable;
  * @see DestructionAwareBeanPostProcessor
  * @see ConfigurableBeanFactory#addBeanPostProcessor
  * @see BeanFactoryPostProcessor
+ *
+ */
+/**
  * 定义BeanPostProcessor接口是Spring框架提供的一个扩展类点之一 BeanFactoryPostProcessor,(扩展类点其实有很多种的)
- *通过实现BeanPostProcessor接口,程序员就可以插手bean的实例化过程,从而减轻beanFactory的负担,怎么减轻的?
+ * 通过实现BeanPostProcessor接口,程序员就可以插手bean的实例化过程,从而减轻beanFactory的负担,怎么减轻的?
  * 这个接口可以被多个类实现,会形成一个列表,
  * 通过实现PriorityOrdered可以改变实现类的执行顺序,getOrder返回值越小越优先执行
  * (那默认的实现类的顺序是Spring自己设置对象,设置顺序)
@@ -49,7 +52,8 @@ import org.springframework.lang.Nullable;
  * AOP也是通过BeanPostProcessor和IOC容器建立起了联系
  * Spring默认提供很多BeanPostProcessor的实现类
  * 其实这个接口的本身方法特别的简单,简单到令人发指,但是他的实现类巨多,实现类的方法内的逻辑复杂的程度也令人发指
- *
+ * @author fussen
+ * Jul 22, 2020 11:28:05 AM
  */
 public interface BeanPostProcessor {
 
@@ -66,8 +70,9 @@ public interface BeanPostProcessor {
 	 * if {@code null}, no subsequent BeanPostProcessors will be invoked
 	 * @throws org.springframework.beans.BeansException in case of errors
 	 * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet
-	 * 在bean的初始化之前执行
+	 * 
 	 */
+	//在bean的初始化之前执行
 	@Nullable
 	default Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
 		return bean;
@@ -93,8 +98,9 @@ public interface BeanPostProcessor {
 	 * @throws org.springframework.beans.BeansException in case of errors
 	 * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet
 	 * @see org.springframework.beans.factory.FactoryBean
-	 * 在bean的初始化之后执行
+	 * 
 	 */
+	//在bean的初始化之后执行
 	@Nullable
 	default Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 		return bean;

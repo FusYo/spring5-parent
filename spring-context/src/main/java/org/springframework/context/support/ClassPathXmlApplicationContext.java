@@ -159,7 +159,7 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
 		super(parent);
 		//设置此应用程序上下文的配置文件位置-例如：
 		setConfigLocations(configLocations);
-		if (refresh) {
+		if (refresh) {//=true
 			refresh();
 		}
 	}

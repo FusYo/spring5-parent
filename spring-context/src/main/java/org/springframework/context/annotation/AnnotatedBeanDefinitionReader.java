@@ -134,6 +134,7 @@ public class AnnotatedBeanDefinitionReader {
 	 * @param annotatedClasses one or more annotated classes,
 	 * e.g. {@link Configuration @Configuration} classes
 	 */
+	//注册一个或多个要处理的注释类
 	public void register(Class<?>... annotatedClasses) {
 		//配置类可以是多个
 		for (Class<?> annotatedClass : annotatedClasses) {
@@ -146,7 +147,9 @@ public class AnnotatedBeanDefinitionReader {
 	 * class-declared annotations.
 	 * @param annotatedClass the class of the bean
 	 */
+	//从给定的bean类注册一个bean，从类声明的注释派生它的元数据
 	public void registerBean(Class<?> annotatedClass) {
+		//真正开始注册Bean操作
 		doRegisterBean(annotatedClass, null, null, null);
 	}
 
@@ -215,6 +218,7 @@ public class AnnotatedBeanDefinitionReader {
 	 * factory's {@link BeanDefinition}, e.g. setting a lazy-init or primary flag
 	 * @since 5.0
 	 */
+	//从给定的bean类注册一个bean，从类声明的注释派生它的元数据
 	<T> void doRegisterBean(Class<T> annotatedClass, @Nullable Supplier<T> instanceSupplier, @Nullable String name,
 			@Nullable Class<? extends Annotation>[] qualifiers, BeanDefinitionCustomizer... definitionCustomizers) {
 
@@ -222,21 +226,20 @@ public class AnnotatedBeanDefinitionReader {
 		 * 根据指定的bean,创建一个GenericBeanDefinition
 		 * 这个GenericBeanDefinition 包含了该类的一些元信息
 		 * scope ,lazy等等
-		 * 在该构造方法中把类的所有注解信息都封装在了metadata这个对象中     'metadata' 是 '元数据'的意思
+		 * 在该构造方法中把类的所有注解信息都封装在了metadata这个对象中'metadata' 是 '元数据'的意思
 		 * metadata对象中有一个annotations注解集合 存储当前类的所有注解
 		 */
 		AnnotatedGenericBeanDefinition abd = new AnnotatedGenericBeanDefinition(annotatedClass);
 
 		/**
-		 * 判断当前类是否有@Conditional
-		 * 关于@Conditional的作用
-		 * 此文章解析 https://www.cnblogs.com/heliusKing/p/10778107.html
+		 * 判断当前类是否有@Conditional-条件注解,如果加上了，直接返回
 		 */
 		if (this.conditionEvaluator.shouldSkip(abd.getMetadata())) {
 			return;
 		}
 
 		//instanceSupplier null
+		//值为null
 		abd.setInstanceSupplier(instanceSupplier);
 
 		//得到AnnotatedGenericBeanDefinition类的作用域 单例还是多例
@@ -244,8 +247,9 @@ public class AnnotatedBeanDefinitionReader {
 		//把类的作用域赋值给abd对象
 		abd.setScope(scopeMetadata.getScopeName());
 
-		 //生成类的名称,如果@Component没有加值,默认是类的小驼峰式命名称,加了名称的就是组件上的值
-		 String beanName = (name != null ? name : this.beanNameGenerator.generateBeanName(abd, this.registry));
+		//生成类的名称,如果@Component没有加值,默认是类的小驼峰式命名称,加了名称的就是组件上的值
+		//传入的是null
+		String beanName = (name != null ? name : this.beanNameGenerator.generateBeanName(abd, this.registry));
 
 		 /**
 		 * 把AnnotatedGenericBeanDefinition对象传进
@@ -270,15 +274,16 @@ public class AnnotatedBeanDefinitionReader {
 			}
 		}
 		//一些自定义的注解,很少有人在spring写自定义的注解的,这个不是重点
+		//传过来的就是一个 null 值
 		for (BeanDefinitionCustomizer customizer : definitionCustomizers) {
 			customizer.customize(abd);
 		}
-         //把AnnotatedGenericBeanDefinition放进去,赋值给了 成员变量beanDefinition
+        //把AnnotatedGenericBeanDefinition放进去,赋值给了 成员变量beanDefinition
 		//把BeanName赋值进去,可以说是增强版的AnnotatedGenericBeanDefinition
 		//查看后面的代码发现,其实definitionHolder就只是起到一个临时容器的作用
 		BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(abd, beanName);
 
-		//这个比较复杂先放一放 需要结合web理解   2019-09-13
+		//这个比较复杂先放一放 需要结合web理解
 		definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
 
 		//现在又把增强版的 definitionHolder 放到registry这个容器中
