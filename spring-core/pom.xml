@@ -21,7 +21,7 @@
 <dependency>
     <groupId>com.fasterxml.woodstox</groupId>
     <artifactId>woodstox-core</artifactId>
-    <version>5.0.3</version>
+    <version>5.4.0</version>
 </dependency>
 <!-- org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory -->
